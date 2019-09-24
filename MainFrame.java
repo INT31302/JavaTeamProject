@@ -15,15 +15,23 @@ public class MainFrame extends JFrame{
 
 
     public void change(String panelName){
-        if(panelName.equals("MainToProfile")){
             getContentPane().removeAll();
+        switch(panelName){
+            case "MainToProfile":
             getContentPane().add(p_Panel);
             revalidate();
             repaint();
-            m_Panel.setFocusable(false);
             p_Panel.requestFocusInWindow();
-            p_Panel.setFocusable(true);
+            break;
+            case "ProfileToMain":
+            getContentPane().add(m_Panel);
+            revalidate();
+            repaint();
+            m_Panel.requestFocusInWindow();
+            break;
+            
         }
+          
     }
 
     public static void main(String[] args) {
@@ -32,7 +40,6 @@ public class MainFrame extends JFrame{
         mf.p_Panel = new ProfilePanel(mf);
         mf.add(mf.m_Panel);
         mf.m_Panel.requestFocusInWindow();
-        mf.m_Panel.setFocusable(true);
         
     }
 }
