@@ -1,6 +1,8 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import MainPanel.*;
+import ProfilePanel.*;
 
 public class MainFrame extends JFrame{
     private static final long serialVersionUID = 1L;
@@ -9,8 +11,10 @@ public class MainFrame extends JFrame{
     public MainFrame(){
         super("입문 개발자를 위한 타자 연습");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        getContentPane();
         setSize(1200,800);
         setVisible(true);
+        setResizable(false);
     }
 
 
@@ -23,22 +27,23 @@ public class MainFrame extends JFrame{
             repaint();
             p_Panel.requestFocusInWindow();
             break;
-            case "ProfileToMain":
+            case "BackToMain":
             getContentPane().add(m_Panel);
             revalidate();
             repaint();
             m_Panel.requestFocusInWindow();
             break;
-            
         }
           
     }
-
+    
     public static void main(String[] args) {
         MainFrame mf = new MainFrame();
         mf.m_Panel = new MainPanel(mf);
         mf.p_Panel = new ProfilePanel(mf);
         mf.add(mf.m_Panel);
+        mf.revalidate();
+        mf.repaint();
         mf.m_Panel.requestFocusInWindow();
         
     }
