@@ -14,10 +14,15 @@ class MainPanel extends JPanel{
         JButton profileBtn = new JButton("Profile");
         profileBtn.setSize(100,30);
         profileBtn.setLocation(45,30);
+        //profileBtn.setBorderPainted(false);
+        profileBtn.setContentAreaFilled(false);
+        profileBtn.setFocusPainted(false);
+        profileBtn.addActionListener(new MainToProfileBtnEvent());
         add(profileBtn);
-        profileBtn.addActionListener(new deletePanel());
+
         for(int i = 0; i< menuBtn.length; i++){
             menuBtn[i] = new JButton(new ImageIcon("img/main_btn.png"));
+            menuBtn[i].setPressedIcon(new ImageIcon("img/main_Pbtn.png"));
             menuBtn[i].setBorderPainted(false);
             menuBtn[i].setContentAreaFilled(false);
             menuBtn[i].setFocusPainted(false);
@@ -25,16 +30,25 @@ class MainPanel extends JPanel{
             menuBtn[i].setLocation(45+(i*280),150);
             add(menuBtn[i]);
         }
+        menuBtn[0].addActionListener(new MainToWordBtnEvent());
+
         this.setFocusable(true);
         this.requestFocus();
-        this.addKeyListener(new ExitProGram());
+        this.addKeyListener(new ExitProgram());
     }
-    class deletePanel implements ActionListener{
+    class MainToProfileBtnEvent implements ActionListener{
         public void actionPerformed(ActionEvent e){
             mf.change("MainToProfile");
         }
     }
-    class ExitProGram extends KeyAdapter{
+
+    class MainToWordBtnEvent implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+            mf.change("MainToWord");
+        }
+    }
+
+    class ExitProgram extends KeyAdapter{
         public void keyPressed(KeyEvent e){
             if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
                 int num = JOptionPane.showConfirmDialog(null, "프로그램을 종료하시겠습니까?", "종료", JOptionPane.YES_NO_OPTION);
