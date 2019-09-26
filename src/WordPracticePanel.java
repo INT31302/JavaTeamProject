@@ -19,21 +19,24 @@ public class WordPracticePanel extends JPanel{
     private JLabel typo_Cnt;
     private JLabel accuracy_Per;
     private int total = 0;
+    private int index = 0;
+    private final int max = 100;
+    private java.util.List<String> tmp = new ArrayList<String>();
     private java.util.List<String> text = new ArrayList<String>();
 
     public WordPracticePanel(MainFrame mf){
         this.mf = mf;
         setLayout(null);
         setBackground(Color.WHITE);
-        text.clear();
-        total = text.size();
+        tmp.clear();
+        total = tmp.size();
         FileReader fin = null;
         try{
             fin = new FileReader("txt/java.txt");
             BufferedReader bufReader = new BufferedReader(fin);
             String line = "";
             while((line = bufReader.readLine()) != null){
-                text.add(line);
+                tmp.add(line);
                 total++;
             }
             bufReader.close();
@@ -41,6 +44,12 @@ public class WordPracticePanel extends JPanel{
         catch(IOException e){
             System.out.println(e);
         }
+
+        for(int i = 0; i<max; i++){
+            int rNum = (int)(Math.random()*total);
+            text.add(tmp.get(rNum));
+        }
+
         JLabel progress_Title = new JLabel("진행도");
         progress_Title.setSize(100,30);
         progress_Title.setLocation(50,80);
@@ -91,9 +100,8 @@ public class WordPracticePanel extends JPanel{
         accuracy_Per.setLocation(525,80);
         add(accuracy_Per);
 
-        int rnum = (int)(Math.random()*total);
         questionLabel = new JLabel();
-        questionLabel.setText(text.get(rnum));
+        questionLabel.setText(text.get(index));
         questionLabel.setSize(250,30);
         questionLabel.setLocation(300,200);
         questionLabel.setFont(questionLabel.getFont().deriveFont(15.0F));
@@ -101,10 +109,8 @@ public class WordPracticePanel extends JPanel{
 
         typeLabel = new JLabel();
         typeLabel.setSize(250,30);
-        typeLabel.setLocation(300,300);
+        typeLabel.setLocation(300,250);
         typeLabel.setFont(typeLabel.getFont().deriveFont(15.0F));
-        typeLabel.setOpaque(true);
-        typeLabel.setBackground(Color.CYAN);
         add(typeLabel);
 
         JButton backBtn = new JButton(new ImageIcon("img/test.png"));
@@ -154,42 +160,56 @@ public class WordPracticePanel extends JPanel{
             if(key >= KeyEvent.VK_A && key <= KeyEvent.VK_Z|| key== KeyEvent.VK_SPACE || key == KeyEvent.VK_PERIOD || key >= KeyEvent.VK_0 && key<=KeyEvent.VK_9|| 
             e.getKeyChar() == '_'){
                 typeLabel.setText(typeLabel.getText()+e.getKeyChar());
+
+                if(questionLabel.getText().substring(0, typeLabel.getText().length()).equals(typeLabel.getText()))
+                    typeLabel.setForeground(Color.BLACK);
+                else
+                    typeLabel.setForeground(Color.RED);
             }
             
             if(key== KeyEvent.VK_BACK_SPACE){
                 if(typeLabel.getText().length()>0)
                 typeLabel.setText(typeLabel.getText().substring(0, typeLabel.getText().length()-1));
+                if(questionLabel.getText().substring(0, typeLabel.getText().length()).equals(typeLabel.getText()))
+                    typeLabel.setForeground(Color.BLACK);
+                else
+                    typeLabel.setForeground(Color.RED);
             }
             if(key == KeyEvent.VK_ENTER){
-
+                index++;
                 if(questionLabel.getText().equals(typeLabel.getText())){
                 }
                 else{
                     typo_bar.setValue(++typo);
                     typo_Cnt.setText(Integer.toString(typo));
                 }
-                progress_Per.setText(Integer.toString(++progress)+"%");
+                progress = 100*index/max;
+                progress_Per.setText(Integer.toString(progress)+"%");
                 progress_bar.setValue(progress);
-                
-                accuracy = (int)(100-(100*(typo/progress)));
+                System.out.println(progress);
+
+                accuracy = 100-(int)(100*typo/index);
                 accuracy_bar.setValue(accuracy);
                 accuracy_Per.setText(Integer.toString(accuracy)+"%");
-
-                int rnum = (int)(Math.random()*total);
-                questionLabel.setText(text.get(rnum));
-                typeLabel.setText("");
                 if(progress==100){
                     progress = 0;
                     JOptionPane.showMessageDialog(null, "수고하셨습니다.", "종료", JOptionPane.INFORMATION_MESSAGE);
                     mf.change("BackToMain");
 
+                }else{
+                    questionLabel.setText(text.get(index));
+                    typeLabel.setText("");
                 }
+                
+                
             }
         }
     }
     class BackToMainEvent extends KeyAdapter{
         public void keyPressed(KeyEvent e){
             if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
+                if(index != 0)
+                    JOptionPane.showMessageDialog(null, "수고하셨습니다.", "종료", JOptionPane.INFORMATION_MESSAGE);
                 mf.change("BackToMain");
 
             }
