@@ -64,16 +64,16 @@ public class ProfilePanel extends JPanel{
         backBtn.addMouseListener(new BtnAnimationEvent());
         add(backBtn);
 
-        JButton questionBtn = new JButton(new ImageIcon("img/test.png"));
-        questionBtn.setSize(50,50);
-        questionBtn.setLocation(1110,700);
-        questionBtn.setBorder(new CompoundBorder(new LineBorder(Color.BLACK,1), new BevelBorder(BevelBorder.RAISED)));
-        //questionBtn.setBorderPainted(false);
-        questionBtn.setContentAreaFilled(false);
-        questionBtn.setFocusPainted(false);
-        questionBtn.addActionListener(new QuestionBtnEvent());
-        questionBtn.addMouseListener(new BtnAnimationEvent());
-        add(questionBtn);
+        JButton helpBtn = new JButton(new ImageIcon("img/test.png"));
+        helpBtn.setSize(50,50);
+        helpBtn.setLocation(1110,700);
+        helpBtn.setBorder(new CompoundBorder(new LineBorder(Color.BLACK,1), new BevelBorder(BevelBorder.RAISED)));
+        //helpBtn.setBorderPainted(false);
+        helpBtn.setContentAreaFilled(false);
+        helpBtn.setFocusPainted(false);
+        helpBtn.addActionListener(new helpBtnEvent());
+        helpBtn.addMouseListener(new BtnAnimationEvent());
+        add(helpBtn);
 
         this.addKeyListener(new BackToMainEvent());
         setSize(1200,800);
@@ -119,7 +119,7 @@ public class ProfilePanel extends JPanel{
 
     
 
-    class QuestionBtnEvent implements ActionListener{
+    class helpBtnEvent implements ActionListener{
         private QuestionDialog dialog = null;
         public void actionPerformed(ActionEvent e){
             if(dialog == null){
