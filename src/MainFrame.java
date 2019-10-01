@@ -10,6 +10,9 @@ public class MainFrame extends JFrame{
     private WordPracticePanel w_Panel = null;
     private SentensePracticePanel sen_Panel = null;
     private Point initialClick;
+    private int lan_index = 0;
+    private String languages[] = {"Java","C","Python"};
+    private String language = languages[lan_index];
 
     public MainFrame(){
         super("입문 개발자를 위한 타자 연습");
@@ -58,6 +61,16 @@ public class MainFrame extends JFrame{
         }
           
     }
+    public String getLanguage(){
+        return language;
+    }
+    public String ChangeLanguage(){
+        language = languages[lan_index];
+        System.out.println(language);
+        if(lan_index == languages.length-1) lan_index = 0;
+        else lan_index++;
+        return language;
+    }
     class moveWindows extends MouseAdapter implements MouseMotionListener{
         public void mousePressed(MouseEvent e){
             initialClick = e.getPoint();
@@ -77,6 +90,12 @@ public class MainFrame extends JFrame{
             jf.setLocation(X, Y);
         }
         public void mouseMoved(MouseEvent e){}
+    }
+
+    public void ExitP(){
+        int num = JOptionPane.showConfirmDialog(null, "프로그램을 종료하시겠습니까?", "종료", JOptionPane.YES_NO_OPTION);
+            if(num == 0)
+            System.exit(0);
     }
     public static void main(String[] args) {
         MainFrame mf = new MainFrame();

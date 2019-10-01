@@ -93,20 +93,15 @@ class MainPanel extends JPanel{
             mf.setState(1);
         }
     }
-    public void ExitP(){
-        int num = JOptionPane.showConfirmDialog(null, "프로그램을 종료하시겠습니까?", "종료", JOptionPane.YES_NO_OPTION);
-            if(num == 0)
-            System.exit(0);
-    }
     class ExitPro implements ActionListener{
         public void actionPerformed(ActionEvent e){
-            ExitP();
+            mf.ExitP();
         }
     }
     class ExitProgram extends KeyAdapter{
         public void keyPressed(KeyEvent e){
             if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
-                ExitP();
+                mf.ExitP();
             }
         }
     }

@@ -133,8 +133,8 @@ public class WordPracticePanel extends JPanel{
         typeLabel.setHorizontalAlignment(JLabel.CENTER);
         add(typeLabel);
 
-        JButton backBtn = new JButton(new ImageIcon("img/back_btn.png"));
-        backBtn.setPressedIcon(new ImageIcon("img/back_pbtn.png"));
+        JButton backBtn = new JButton(new ImageIcon("img/w_back_btn.png"));
+        backBtn.setPressedIcon(new ImageIcon("img/w_back_pbtn.png"));
         backBtn.setSize(50,50);
         backBtn.setLocation(30,700);
         backBtn.setBorderPainted(false);
@@ -143,8 +143,8 @@ public class WordPracticePanel extends JPanel{
         backBtn.addActionListener(new BackToMainBtnEvent());
         add(backBtn);
 
-        JButton helpBtn = new JButton(new ImageIcon("img/help_btn.png"));
-        helpBtn.setPressedIcon(new ImageIcon("img/help_pbtn.png"));
+        JButton helpBtn = new JButton(new ImageIcon("img/w_help_btn.png"));
+        helpBtn.setPressedIcon(new ImageIcon("img/w_help_pbtn.png"));
         helpBtn.setSize(50,50);
         helpBtn.setLocation(1110,700);
         helpBtn.setBorderPainted(false);
@@ -167,6 +167,26 @@ public class WordPracticePanel extends JPanel{
         keyBoardImg.setSize(1200,800);
         keyBoardImg.setLocation(1,80);
         add(keyBoardImg);
+
+        JButton exitBtn = new JButton(new ImageIcon("img/w_exit_btn.png"));
+        exitBtn.setPressedIcon(new ImageIcon("img/w_exit_pbtn.png"));
+        exitBtn.setSize(25,25);
+        exitBtn.setLocation(1160,5);
+        exitBtn.setBorderPainted(false);
+        exitBtn.setContentAreaFilled(false);
+        exitBtn.setFocusPainted(false);
+        exitBtn.addActionListener(new ExitPro());
+        add(exitBtn);
+
+        JButton miniBtn = new JButton(new ImageIcon("img/w_mini_btn.png"));
+        miniBtn.setPressedIcon(new ImageIcon("img/w_mini_pbtn.png"));
+        miniBtn.setSize(25,25);
+        miniBtn.setLocation(1120,5);
+        miniBtn.setBorderPainted(false);
+        miniBtn.setContentAreaFilled(false);
+        miniBtn.setFocusPainted(false);
+        miniBtn.addActionListener(new MinimizneWindows());
+        add(miniBtn);
         
         ch = questionLabel.getText().charAt(0);
         KeyImageChange(ch);
@@ -260,9 +280,10 @@ public class WordPracticePanel extends JPanel{
             }
             
             if(key== KeyEvent.VK_BACK_SPACE){ // 백스페이스 입력 시 실행
+                
                 if(typeLabel.getText().length()>0){ // 입력된 텍스트가 있을 경우
-                    ch = questionLabel.getText().charAt(typeLabel.getText().length()); // 다음에 입력할 문자를 다시 받아옴
                     typeLabel.setText(typeLabel.getText().substring(0, typeLabel.getText().length()-1)); // 입력창에 입력값 중 마지막 문자 삭제
+                    ch = questionLabel.getText().charAt(typeLabel.getText().length()); // 다음에 입력할 문자를 다시 받아옴
                     KeyImageChange(ch); // 키보드 하이라이트 이미지 위치 변경
                 }
                 if(questionLabel.getText().substring(0, typeLabel.getText().length()).equals(typeLabel.getText())) // 한문자씩 올바르게 입력했는지
@@ -326,11 +347,22 @@ public class WordPracticePanel extends JPanel{
                 dialog.addWindowListener(new WindowAdapter(){
                     public void windowClosed(WindowEvent e){
                         dialog = null;
+                        mf.change("MainToWord");
                     }
                 });
                 dialog.setVisible(true);
-
             }
+        }
+    }
+
+    class MinimizneWindows implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+            mf.setState(1);
+        }
+    }
+    class ExitPro implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+           mf.ExitP();
         }
     }
 }

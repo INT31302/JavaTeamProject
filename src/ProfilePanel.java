@@ -8,8 +8,8 @@ public class ProfilePanel extends JPanel{
     private String sName[] = {"평균타수", "목표타수", "정확도"};
     private JLabel settingLabel[] = new JLabel[3];
     private JLabel userLabel = new JLabel("user");
-    private ImageIcon languageIcon[] = {};
-    private JButton languageBtn = new JButton("change");
+    private ImageIcon languageIcon[] = {new ImageIcon("img/java_btn.png"), new ImageIcon("img/c_btn.png"), new ImageIcon("img/python_btn.png")};
+    private JButton languageBtn = new JButton();
 
     public ProfilePanel(MainFrame mf){
         this.mf = mf;
@@ -37,15 +37,29 @@ public class ProfilePanel extends JPanel{
         editBtn.setContentAreaFilled(false);
         editBtn.setFocusPainted(false);
         editBtn.addActionListener(new ChangeName());
+        editBtn.addKeyListener(new BackToMainEvent());
         add(editBtn);
+
+        switch(mf.getLanguage()){
+            case "Java":
+            languageBtn.setIcon(languageIcon[0]);
+            break;
+            case "C":
+            languageBtn.setIcon(languageIcon[1]);
+            break;
+            case "Python":
+            languageBtn.setIcon(languageIcon[2]);
+            break;
+        }
 
         languageBtn.setSize(130,30);
         languageBtn.setLocation(100,80);
         //languageBtn.setBorderPainted(false);
         languageBtn.setContentAreaFilled(false);
         languageBtn.setFocusPainted(false);
+        languageBtn.addActionListener(new ChangeLanguageEvent());
+        languageBtn.addKeyListener(new BackToMainEvent());
         add(languageBtn);
-
 
         JLabel recordLabel = new JLabel("언어별 기록"); 
         recordLabel.setFont(recordLabel.getFont().deriveFont(15.0f));
@@ -79,7 +93,6 @@ public class ProfilePanel extends JPanel{
         setSize(1200,800);
         setVisible(true);
     }
-
     class ChangeName implements ActionListener{
         public void actionPerformed(ActionEvent e){
             try{
@@ -102,6 +115,24 @@ public class ProfilePanel extends JPanel{
             }
         }
     }
+    class ChangeLanguageEvent implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+            JButton b = (JButton)e.getSource();
+            Container p = (Container)e.getSource();
+            switch(mf.ChangeLanguage()){
+                case "Java":
+                b.setIcon(languageIcon[0]);
+                break;
+                case "C":
+                b.setIcon(languageIcon[1]);
+                break;
+                case "Python":
+                b.setIcon(languageIcon[2]);
+                break;
+            }
+        }
+
+    }
     public void ChangeBtnAnimation(JButton btn,int cnt){
         if(cnt == 0)
             btn.setBorder(new CompoundBorder(new LineBorder(Color.BLACK,1), new SoftBevelBorder(SoftBevelBorder.LOWERED)));
@@ -117,8 +148,6 @@ public class ProfilePanel extends JPanel{
         }
     }
 
-    
-
     class helpBtnEvent implements ActionListener{
         private QuestionDialog dialog = null;
         public void actionPerformed(ActionEvent e){
@@ -127,10 +156,10 @@ public class ProfilePanel extends JPanel{
                 dialog.addWindowListener(new WindowAdapter(){
                     public void windowClosed(WindowEvent e){
                         dialog = null;
+                        mf.change("MainToProfile");
                     }
                 });
                 dialog.setVisible(true);
-
             }
         }
     }
