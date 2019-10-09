@@ -23,11 +23,22 @@ public class SentensePracticePanel extends JPanel{
     private char ch;
     private java.util.List<String> tmp = new ArrayList<String>();
     private java.util.List<String> text = new ArrayList<String>();
-    public SentensePracticePanel(MainFrame mf){
+    public SentensePracticePanel(MainFrame mf, String language){
         this.mf = mf;
         setLayout(null);
         setBackground(Color.WHITE);
         File files = new File("txt/java/sourceFile");
+        switch(language){
+            case "Java":
+            files = new File("txt/java/sourceFile");
+            break;
+            case "C":
+            files = new File("txt/c/sourceFile");
+            break;
+            case "Python":
+            files = new File("txt/python/sourceFile");
+            break;
+        }
             File[] subFiles = files.listFiles();
 
             int ran = (int)(Math.random()*subFiles.length);
@@ -116,8 +127,8 @@ public class SentensePracticePanel extends JPanel{
         typeLabel.setHorizontalAlignment(JLabel.CENTER);
         add(typeLabel);
 
-        JButton backBtn = new JButton(new ImageIcon("img/back_btn.png"));
-        backBtn.setPressedIcon(new ImageIcon("img/back_pbtn.png"));
+        JButton backBtn = new JButton(new ImageIcon("img/w_back_btn.png"));
+        backBtn.setPressedIcon(new ImageIcon("img/w_back_pbtn.png"));
         backBtn.setSize(50,50);
         backBtn.setLocation(30,700);
         backBtn.setBorderPainted(false);
@@ -126,8 +137,8 @@ public class SentensePracticePanel extends JPanel{
         backBtn.addActionListener(new BackToMainBtnEvent());
         add(backBtn);
 
-        JButton helpBtn = new JButton(new ImageIcon("img/help_btn.png"));
-        helpBtn.setPressedIcon(new ImageIcon("img/help_pbtn.png"));
+        JButton helpBtn = new JButton(new ImageIcon("img/w_help_btn.png"));
+        helpBtn.setPressedIcon(new ImageIcon("img/w_help_pbtn.png"));
         helpBtn.setSize(50,50);
         helpBtn.setLocation(1110,700);
         helpBtn.setBorderPainted(false);
@@ -135,6 +146,26 @@ public class SentensePracticePanel extends JPanel{
         helpBtn.setFocusPainted(false);
         helpBtn.addActionListener(new helpBtnEvent());
         add(helpBtn);
+
+        JButton exitBtn = new JButton(new ImageIcon("img/w_exit_btn.png"));
+        exitBtn.setPressedIcon(new ImageIcon("img/w_exit_pbtn.png"));
+        exitBtn.setSize(25,25);
+        exitBtn.setLocation(1160,5);
+        exitBtn.setBorderPainted(false);
+        exitBtn.setContentAreaFilled(false);
+        exitBtn.setFocusPainted(false);
+        exitBtn.addActionListener(new ExitPro());
+        add(exitBtn);
+
+        JButton miniBtn = new JButton(new ImageIcon("img/w_mini_btn.png"));
+        miniBtn.setPressedIcon(new ImageIcon("img/w_mini_pbtn.png"));
+        miniBtn.setSize(25,25);
+        miniBtn.setLocation(1120,5);
+        miniBtn.setBorderPainted(false);
+        miniBtn.setContentAreaFilled(false);
+        miniBtn.setFocusPainted(false);
+        miniBtn.addActionListener(new MinimizneWindows());
+        add(miniBtn);
 
         this.addKeyListener(new TypeEvent());
         this.addKeyListener(new BackToMainEvent());
@@ -152,25 +183,8 @@ public class SentensePracticePanel extends JPanel{
 
 
     class TypeEvent extends KeyAdapter{
-        public void keyPressed(KeyEvent e){
-            int key = e.getKeyCode();
-            //if(key == KeyEvent.VK_SPACE) typeLabel.setText(typeLabel.getText()+" ");
-            if(key >= KeyEvent.VK_A && key <= KeyEvent.VK_Z|| key== KeyEvent.VK_SPACE || key == KeyEvent.VK_PERIOD || key >= KeyEvent.VK_0 && key<=KeyEvent.VK_9|| 
-            e.getKeyChar() == '_' || e.getKeyChar() == ';'|| e.getKeyChar() == '=' || e.getKeyChar() == '{' || e.getKeyChar() == '}' ||  e.getKeyChar() == '<' || e.getKeyChar() == '>' || e.getKeyChar() == '\"'
-            || e.getKeyChar() == '\''|| e.getKeyChar() == '['|| e.getKeyChar() == ']' || e.getKeyChar() == ',' || e.getKeyChar() == '|' || e.getKeyChar() == '&' || e.getKeyChar() == '!'){ 
-                // A~Z, 스페이스, '.', 0~9, '_' 입력시 실행
-                typeLabel.setText(typeLabel.getText()+e.getKeyChar()); // 입력된 값을 입력창에 추가
-                if(questionLabel[0].getText().length()+1 == typeLabel.getText().length()){ // 문제 단어 텍스트 길이보다 입력창 텍스트 길이가 더 길 경우
-                    typeLabel.setText(typeLabel.getText().substring(0, typeLabel.getText().length()-1)); // 마지막 입력된 값 지워줌
-                    e.setKeyCode(KeyEvent.VK_ENTER); // 현재 키보드 이벤트를 엔터 눌렀을 때로 변경
-                    keyPressed(e); // 이벤트 재실행
-                } 
-
-                if(questionLabel[0].getText().substring(0, typeLabel.getText().length()).equals(typeLabel.getText())) // 한문자씩 올바르게 입력했는지
-                    typeLabel.setForeground(Color.BLACK); // 맞으면 입력창 글자색 검정으로 변경
-                else
-                    typeLabel.setForeground(Color.RED); // 틀리면 입력창 글자색 빨강으로 변경
-            }
+        public void keyTyped(KeyEvent e){
+            int key = e.getKeyChar();
             
             if(key== KeyEvent.VK_BACK_SPACE){ // 백스페이스 입력 시 실행
                 
@@ -184,7 +198,7 @@ public class SentensePracticePanel extends JPanel{
                     typeLabel.setForeground(Color.RED); // 틀리면 입력창 글자색 빨강으로 변경
             }
 
-            if(key == KeyEvent.VK_ENTER){ // 엔터 입력 시
+            else if(key == KeyEvent.VK_ENTER){ // 엔터 입력 시
                 index++; //다음 문제 단어 받을 준비함.
                 if(questionLabel[0].getText().equals(typeLabel.getText())){
                 }
@@ -210,6 +224,19 @@ public class SentensePracticePanel extends JPanel{
                     }
                 }
             }
+            else{
+                typeLabel.setText(typeLabel.getText()+e.getKeyChar()); // 입력된 값을 입력창에 추가
+                if(questionLabel[0].getText().length()+1 == typeLabel.getText().length()){ // 문제 단어 텍스트 길이보다 입력창 텍스트 길이가 더 길 경우
+                    typeLabel.setText(typeLabel.getText().substring(0, typeLabel.getText().length()-1)); // 마지막 입력된 값 지워줌
+                    e.setKeyChar((char)KeyEvent.VK_ENTER); // 현재 키보드 이벤트를 엔터 눌렀을 때로 변경
+                    keyTyped(e); // 이벤트 재실행
+                } 
+
+                if(questionLabel[0].getText().substring(0, typeLabel.getText().length()).equals(typeLabel.getText())) // 한문자씩 올바르게 입력했는지
+                    typeLabel.setForeground(Color.BLACK); // 맞으면 입력창 글자색 검정으로 변경
+                else
+                    typeLabel.setForeground(Color.RED); // 틀리면 입력창 글자색 빨강으로 변경
+            }
         }
     }
 
@@ -220,8 +247,9 @@ public class SentensePracticePanel extends JPanel{
     }
 
     class BackToMainEvent extends KeyAdapter{
-        public void keyPressed(KeyEvent e){
-            if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
+        public void keyTyped(KeyEvent e){
+            if(e.getKeyChar() == KeyEvent.VK_ESCAPE){
+                typeLabel.setText(typeLabel.getText().substring(0, typeLabel.getText().length()-1));
                 if(index != 0)
                     JOptionPane.showMessageDialog(null, "수고하셨습니다.", "종료", JOptionPane.INFORMATION_MESSAGE);
                 mf.change("BackToMain");
@@ -246,11 +274,21 @@ public class SentensePracticePanel extends JPanel{
                 dialog.addWindowListener(new WindowAdapter(){
                     public void windowClosed(WindowEvent e){
                         dialog = null;
+                        mf.change("MainToSen");
                     }
                 });
                 dialog.setVisible(true);
-
             }
+        }
+    }
+    class MinimizneWindows implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+            mf.setState(1);
+        }
+    }
+    class ExitPro implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+           mf.ExitP();
         }
     }
 }

@@ -4,7 +4,6 @@ import java.awt.Toolkit;
 import javax.swing.*;
 
 public class MainFrame extends JFrame{
-    private static final long serialVersionUID = 1L;
     private MainPanel m_Panel = null;
     private ProfilePanel p_Panel = null;
     private WordPracticePanel w_Panel = null;
@@ -45,14 +44,14 @@ public class MainFrame extends JFrame{
             p_Panel.requestFocusInWindow();
             break;
             case "MainToWord":
-            w_Panel = new WordPracticePanel(this);
+            w_Panel = new WordPracticePanel(this, language);
             getContentPane().add(w_Panel);
             revalidate();
             repaint();
             w_Panel.requestFocusInWindow();
             break;
             case "MainToSen":
-            sen_Panel = new SentensePracticePanel(this);
+            sen_Panel = new SentensePracticePanel(this, language);
             getContentPane().add(sen_Panel);
             revalidate();
             repaint();

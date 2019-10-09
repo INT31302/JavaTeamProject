@@ -33,7 +33,7 @@ public class WordPracticePanel extends JPanel{
     private java.util.List<String> tmp = new ArrayList<String>();
     private java.util.List<String> text = new ArrayList<String>();
 
-    public WordPracticePanel(MainFrame mf){
+    public WordPracticePanel(MainFrame mf, String language){
         this.mf = mf;
         setLayout(null);
         setBackground(Color.WHITE);
@@ -41,7 +41,17 @@ public class WordPracticePanel extends JPanel{
         total = tmp.size();
         FileReader fin = null;
         try{
-            fin = new FileReader("txt/java/word.txt");
+            switch(language){
+                case "Java":
+                fin = new FileReader("txt/java/word.txt");
+                break;
+                case "C":
+                fin = new FileReader("txt/c/word.txt");
+                break;
+                case "Python":
+                fin = new FileReader("txt/python/word.txt");
+                break;
+            }
             BufferedReader bufReader = new BufferedReader(fin);
             String line = "";
             while((line = bufReader.readLine()) != null){
@@ -259,26 +269,9 @@ public class WordPracticePanel extends JPanel{
     }
 
     class TypeEvent extends KeyAdapter{
-        public void keyPressed(KeyEvent e){
-            int key = e.getKeyCode();
-            if(key >= KeyEvent.VK_A && key <= KeyEvent.VK_Z|| key== KeyEvent.VK_SPACE || key == KeyEvent.VK_PERIOD || key >= KeyEvent.VK_0 && key<=KeyEvent.VK_9|| 
-            e.getKeyChar() == '_'){ // A~Z, 스페이스, '.', 0~9, '_' 입력시 실행
-                typeLabel.setText(typeLabel.getText()+e.getKeyChar()); // 입력된 값을 입력창에 추가
-                if(questionLabel.getText().length()+1 == typeLabel.getText().length()){ // 문제 단어 텍스트 길이보다 입력창 텍스트 길이가 더 길 경우
-                    typeLabel.setText(typeLabel.getText().substring(0, typeLabel.getText().length()-1)); // 마지막 입력된 값 지워줌
-                    e.setKeyCode(KeyEvent.VK_ENTER); // 현재 키보드 이벤트를 엔터 눌렀을 때로 변경
-                    keyPressed(e); // 이벤트 재실행
-                } 
-                if(questionLabel.getText().length() > typeLabel.getText().length()) // 끝나는 문자인지 아닌지 판별
-                    ch = questionLabel.getText().charAt(typeLabel.getText().length()); // 다음에 입력할 문자를 가져옴
-                    KeyImageChange(ch); //끝나는 문자가 아닐 경우 키보드 하이라이트 이미지 위치 변경
-
-                if(questionLabel.getText().substring(0, typeLabel.getText().length()).equals(typeLabel.getText())) // 한문자씩 올바르게 입력했는지
-                    typeLabel.setForeground(Color.BLACK); // 맞으면 입력창 글자색 검정으로 변경
-                else
-                    typeLabel.setForeground(Color.RED); // 틀리면 입력창 글자색 빨강으로 변경
-            }
-            
+        public void keyTyped(KeyEvent e){
+            int key = e.getKeyChar();
+            System.out.println(key);
             if(key== KeyEvent.VK_BACK_SPACE){ // 백스페이스 입력 시 실행
                 
                 if(typeLabel.getText().length()>0){ // 입력된 텍스트가 있을 경우
@@ -292,7 +285,8 @@ public class WordPracticePanel extends JPanel{
                     typeLabel.setForeground(Color.RED); // 틀리면 입력창 글자색 빨강으로 변경
             }
 
-            if(key == KeyEvent.VK_ENTER){ // 엔터 입력 시
+            else if(key == KeyEvent.VK_ENTER){ // 엔터 입력 시
+                System.out.println("a");
                 index++; //다음 문제 단어 받을 준비함.
                 if(questionLabel.getText().equals(typeLabel.getText())){
                 }
@@ -319,6 +313,22 @@ public class WordPracticePanel extends JPanel{
                     typeLabel.setText(""); // 재입력 받을 준비함.
                     KeyImageChange(questionLabel.getText().charAt(0)); //다음 문제 입력 첫 문자를 키보드 하이라이트에 표시
                 }
+            }
+            else{
+                 typeLabel.setText(typeLabel.getText()+e.getKeyChar()); // 입력된 값을 입력창에 추가
+                if(questionLabel.getText().length()+1 == typeLabel.getText().length()){ // 문제 단어 텍스트 길이보다 입력창 텍스트 길이가 더 길 경우
+                    typeLabel.setText(typeLabel.getText().substring(0, typeLabel.getText().length()-1)); // 마지막 입력된 값 지워줌
+                    e.setKeyChar((char)KeyEvent.VK_ENTER); // 현재 키보드 이벤트를 엔터 눌렀을 때로 변경
+                    keyTyped(e); // 이벤트 재실행
+                } 
+                if(questionLabel.getText().length() > typeLabel.getText().length()) // 끝나는 문자인지 아닌지 판별
+                    ch = questionLabel.getText().charAt(typeLabel.getText().length()); // 다음에 입력할 문자를 가져옴
+                    KeyImageChange(ch); //끝나는 문자가 아닐 경우 키보드 하이라이트 이미지 위치 변경
+
+                if(questionLabel.getText().substring(0, typeLabel.getText().length()).equals(typeLabel.getText())) // 한문자씩 올바르게 입력했는지
+                    typeLabel.setForeground(Color.BLACK); // 맞으면 입력창 글자색 검정으로 변경
+                else
+                    typeLabel.setForeground(Color.RED); // 틀리면 입력창 글자색 빨강으로 변경
             }
         }
     }
