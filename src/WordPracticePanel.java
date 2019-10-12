@@ -28,7 +28,6 @@ public class WordPracticePanel extends JPanel{
     private final int max = 100;
     private JLabel charImage;
     private JLabel shiftImage;
-    
     private char ch;
     private java.util.List<String> tmp = new ArrayList<String>();
     private java.util.List<String> text = new ArrayList<String>();
@@ -315,12 +314,14 @@ public class WordPracticePanel extends JPanel{
                 }
             }
             else{
-                 typeLabel.setText(typeLabel.getText()+e.getKeyChar()); // 입력된 값을 입력창에 추가
-                if(questionLabel.getText().length()+1 == typeLabel.getText().length()){ // 문제 단어 텍스트 길이보다 입력창 텍스트 길이가 더 길 경우
-                    typeLabel.setText(typeLabel.getText().substring(0, typeLabel.getText().length()-1)); // 마지막 입력된 값 지워줌
+                 
+                if(questionLabel.getText().length() == typeLabel.getText().length()){ // 문제 단어 텍스트 길이와 입력창 텍스트 길이가 같을 경우
+                    e.consume(); // 입력 값를 전달하지 않음.
                     e.setKeyChar((char)KeyEvent.VK_ENTER); // 현재 키보드 이벤트를 엔터 눌렀을 때로 변경
                     keyTyped(e); // 이벤트 재실행
-                } 
+                }else
+                    typeLabel.setText(typeLabel.getText()+e.getKeyChar()); // 길이가 다를 경우 입력된 값을 입력창에 추가
+
                 if(questionLabel.getText().length() > typeLabel.getText().length()) // 끝나는 문자인지 아닌지 판별
                     ch = questionLabel.getText().charAt(typeLabel.getText().length()); // 다음에 입력할 문자를 가져옴
                     KeyImageChange(ch); //끝나는 문자가 아닐 경우 키보드 하이라이트 이미지 위치 변경
@@ -346,6 +347,13 @@ public class WordPracticePanel extends JPanel{
             super(frame, title);
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             setSize(600,600);
+            addKeyListener(new KeyAdapter(){
+                public void keyPressed(KeyEvent e){
+                    if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
+                        QuestionDialog.this.dispose();
+                    }
+                }
+            });
         }
     }
 
