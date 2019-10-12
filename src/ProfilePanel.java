@@ -5,7 +5,6 @@ import java.awt.event.*;
 
 public class ProfilePanel extends JPanel{
     private MainFrame mf;
-    private String sName[] = {"평균타수", "목표타수", "정확도"};
     private JLabel settingLabel[] = new JLabel[3];
     private JLabel userLabel = new JLabel("user");
     private ImageIcon languageIcon[] = {new ImageIcon("img/java_btn.png"), new ImageIcon("img/c_btn.png"), new ImageIcon("img/python_btn.png")};
@@ -16,11 +15,7 @@ public class ProfilePanel extends JPanel{
         setLayout(null);
         setBackground(Color.WHITE);
 
-        for(int i = 0; i<sName.length; i++){
-            JLabel la = new JLabel(sName[i]);
-            la.setSize(100,20);
-            la.setLocation(800+(i*100),30);
-            add(la);
+        for(int i = 0; i<settingLabel.length; i++){
             settingLabel[i] = new JLabel(Integer.toString(0));
             settingLabel[i].setSize(100,20);
             settingLabel[i].setLocation(820+(i*100),60);
@@ -30,10 +25,11 @@ public class ProfilePanel extends JPanel{
         userLabel.setLocation(100,35);
         add(userLabel);
 
-        JButton editBtn = new JButton();
+        JButton editBtn = new JButton(new ImageIcon("img/edit_btn.png"));
+        editBtn.setPressedIcon(new ImageIcon("img/edit_pbtn.png"));
         editBtn.setSize(30,30);
         editBtn.setLocation(200,40);
-        //editBtn.setBorderPainted(false);
+        editBtn.setBorderPainted(false);
         editBtn.setContentAreaFilled(false);
         editBtn.setFocusPainted(false);
         editBtn.addActionListener(new ChangeName());
@@ -54,7 +50,7 @@ public class ProfilePanel extends JPanel{
 
         languageBtn.setSize(130,30);
         languageBtn.setLocation(100,80);
-        //languageBtn.setBorderPainted(false);
+        languageBtn.setBorderPainted(false);
         languageBtn.setContentAreaFilled(false);
         languageBtn.setFocusPainted(false);
         languageBtn.addActionListener(new ChangeLanguageEvent());
@@ -67,32 +63,57 @@ public class ProfilePanel extends JPanel{
         recordLabel.setLocation(70,250);
         add(recordLabel);
 
-        JButton backBtn = new JButton(new ImageIcon("img/test.png"));
+        JButton backBtn = new JButton(new ImageIcon("img/w_back_btn.png"));
+        backBtn.setPressedIcon(new ImageIcon("img/w_back_pbtn.png"));
         backBtn.setSize(50,50);
         backBtn.setLocation(30,700);
-        backBtn.setBorder(new CompoundBorder(new LineBorder(Color.BLACK,1), new BevelBorder(BevelBorder.RAISED)));
-        //backBtn.setBorderPainted(false);
+        backBtn.setBorderPainted(false);
         backBtn.setContentAreaFilled(false);
         backBtn.setFocusPainted(false);
         backBtn.addActionListener(new BackToMainBtnEvent());
-        backBtn.addMouseListener(new BtnAnimationEvent());
         add(backBtn);
 
-        JButton helpBtn = new JButton(new ImageIcon("img/test.png"));
+        JButton helpBtn = new JButton(new ImageIcon("img/w_help_btn.png"));
+        helpBtn.setPressedIcon(new ImageIcon("img/w_help_pbtn.png"));
         helpBtn.setSize(50,50);
         helpBtn.setLocation(1110,700);
-        helpBtn.setBorder(new CompoundBorder(new LineBorder(Color.BLACK,1), new BevelBorder(BevelBorder.RAISED)));
-        //helpBtn.setBorderPainted(false);
+        helpBtn.setBorderPainted(false);
         helpBtn.setContentAreaFilled(false);
         helpBtn.setFocusPainted(false);
         helpBtn.addActionListener(new helpBtnEvent());
-        helpBtn.addMouseListener(new BtnAnimationEvent());
         add(helpBtn);
+
+        JButton exitBtn = new JButton(new ImageIcon("img/w_exit_btn.png"));
+        exitBtn.setPressedIcon(new ImageIcon("img/w_exit_pbtn.png"));
+        exitBtn.setSize(25,25);
+        exitBtn.setLocation(1160,5);
+        exitBtn.setBorderPainted(false);
+        exitBtn.setContentAreaFilled(false);
+        exitBtn.setFocusPainted(false);
+        exitBtn.addActionListener(new ExitPro());
+        add(exitBtn);
+
+        JButton miniBtn = new JButton(new ImageIcon("img/w_mini_btn.png"));
+        miniBtn.setPressedIcon(new ImageIcon("img/w_mini_pbtn.png"));
+        miniBtn.setSize(25,25);
+        miniBtn.setLocation(1120,5);
+        miniBtn.setBorderPainted(false);
+        miniBtn.setContentAreaFilled(false);
+        miniBtn.setFocusPainted(false);
+        miniBtn.addActionListener(new MinimizneWindows());
+        add(miniBtn);
 
         this.addKeyListener(new BackToMainEvent());
         setSize(1200,800);
         setVisible(true);
     }
+    public void paintComponent(Graphics g){
+        ImageIcon main_bg = new ImageIcon("img/profile_back.png");
+        g.drawImage(main_bg.getImage(),0,0,null);
+        setOpaque(false);
+        super.paintComponent(g);
+    }
+
     class ChangeName implements ActionListener{
         public void actionPerformed(ActionEvent e){
             try{
@@ -145,6 +166,13 @@ public class ProfilePanel extends JPanel{
             super(frame, title);
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             setSize(600,600);
+            addKeyListener(new KeyAdapter(){
+                public void keyPressed(KeyEvent e){
+                    if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
+                        QuestionDialog.this.dispose();
+                    }
+                }
+            });
         }
     }
 
@@ -188,6 +216,16 @@ public class ProfilePanel extends JPanel{
                 mf.change("BackToMain");
 
             }
+        }
+    }
+    class MinimizneWindows implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+            mf.setState(1);
+        }
+    }
+    class ExitPro implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+           mf.ExitP();
         }
     }
 }
