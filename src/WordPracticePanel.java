@@ -112,8 +112,8 @@ public class WordPracticePanel extends JPanel{
 
         questionLabel = new JLabel();
         questionLabel.setText(text.get(index));
-        questionLabel.setSize(250,30);
-        questionLabel.setLocation(480,180);
+        questionLabel.setSize(400,30);
+        questionLabel.setLocation(400,180);
         questionLabel.setFont(questionLabel.getFont().deriveFont(15.0F));
         questionLabel.setHorizontalAlignment(JLabel.CENTER);
         add(questionLabel);
@@ -136,8 +136,8 @@ public class WordPracticePanel extends JPanel{
         add(doneLabel);
 
         typeLabel = new JLabel();
-        typeLabel.setSize(300,30);
-        typeLabel.setLocation(450,240);
+        typeLabel.setSize(400,30);
+        typeLabel.setLocation(400,240);
         typeLabel.setFont(typeLabel.getFont().deriveFont(15.0F));
         typeLabel.setHorizontalAlignment(JLabel.CENTER);
         add(typeLabel);
@@ -270,7 +270,6 @@ public class WordPracticePanel extends JPanel{
     class TypeEvent extends KeyAdapter{
         public void keyTyped(KeyEvent e){
             int key = e.getKeyChar();
-            System.out.println(key);
             if(key== KeyEvent.VK_BACK_SPACE){ // 백스페이스 입력 시 실행
                 
                 if(typeLabel.getText().length()>0){ // 입력된 텍스트가 있을 경우
@@ -285,7 +284,6 @@ public class WordPracticePanel extends JPanel{
             }
 
             else if(key == KeyEvent.VK_ENTER){ // 엔터 입력 시
-                System.out.println("a");
                 index++; //다음 문제 단어 받을 준비함.
                 if(questionLabel.getText().equals(typeLabel.getText())){
                 }
