@@ -6,7 +6,7 @@ import java.awt.event.*;
 public class ProfilePanel extends JPanel{
     private MainFrame mf;
     private JLabel settingLabel[] = new JLabel[3];
-    private JLabel userLabel = new JLabel("user");
+    private JLabel userLabel = new JLabel();
     private ImageIcon languageIcon[] = {new ImageIcon("img/java_btn.png"), new ImageIcon("img/c_btn.png"), new ImageIcon("img/python_btn.png")};
     private JButton languageBtn = new JButton();
 
@@ -21,6 +21,7 @@ public class ProfilePanel extends JPanel{
             settingLabel[i].setLocation(820+(i*100),60);
             add(settingLabel[i]);
         }
+        userLabel.setText(mf.getNickName());
         userLabel.setSize(100,30);
         userLabel.setLocation(100,35);
         add(userLabel);
@@ -129,8 +130,11 @@ public class ProfilePanel extends JPanel{
                     }
                     else break;
                 }
-                if(name!=null)
+                if(name!=null){
                     userLabel.setText(name);
+                    mf.setNickName(name);
+                }
+                    
             }catch(Exception ex){
 
             }
@@ -143,12 +147,15 @@ public class ProfilePanel extends JPanel{
             switch(mf.ChangeLanguage()){
                 case "Java":
                 b.setIcon(languageIcon[0]);
+                invalidate();
                 break;
                 case "C":
                 b.setIcon(languageIcon[1]);
+                invalidate();
                 break;
                 case "Python":
                 b.setIcon(languageIcon[2]);
+                invalidate();
                 break;
             }
         }
