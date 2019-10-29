@@ -2,6 +2,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.Toolkit;
 import javax.swing.*;
+import java.io.*;
+import java.util.*;
 
 public class MainFrame extends JFrame{
     private MainPanel m_Panel = null;
@@ -11,8 +13,10 @@ public class MainFrame extends JFrame{
     private Point initialClick;
     private int lan_index = 0;
     private String languages[] = {"Java","C","Python"};
-    private String language = languages[lan_index];
-
+    private String language;
+    private String nickName;
+    private File f = new File("c:\\Temp\\test.txt");
+    private FileWriter fout = null;
     public MainFrame(){
         super("입문 개발자를 위한 타자 연습");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -22,7 +26,36 @@ public class MainFrame extends JFrame{
         setIconImage(icon);
         setSize(1200,800);
         setVisible(true);
-        //setResizable(false);
+        if(f.exists()){
+                FileReader fin = null;
+                try{
+                    fin = new FileReader(f);
+                    BufferedReader bufReader = new BufferedReader(fin);
+                    String line = "";
+                    int cnt = 0;
+                    while((line = bufReader.readLine()) != null){
+                        if(line.contains("language : ")){
+                            for(int i = 0; i<3; i++){
+                                if(line.contains(languages[i])) {
+                                    language = languages[i];
+                                    lan_index = i;
+                                }
+                            }
+                        }
+                        if(line.contains("nickName : ")){
+                            String a = "nickName : ";
+                            nickName = line.substring(a.length());
+                        }
+                    }
+                }catch(Exception ee){
+                    System.out.println(ee);
+                }
+                
+        }
+        else{
+            language = languages[0];
+            nickName = "user";
+        }
         this.addMouseListener(new moveWindows());
         this.addMouseMotionListener(new moveWindows());
     }
@@ -60,14 +93,19 @@ public class MainFrame extends JFrame{
         }
           
     }
+    public String getNickName(){
+        return nickName;
+    }
+    public void setNickName(String nickName){
+        this.nickName = nickName;
+    }
     public String getLanguage(){
         return language;
     }
     public String ChangeLanguage(){
-        language = languages[lan_index];
-        System.out.println(language);
         if(lan_index == languages.length-1) lan_index = 0;
         else lan_index++;
+        language = languages[lan_index];
         return language;
     }
     class moveWindows extends MouseAdapter implements MouseMotionListener{
@@ -93,8 +131,19 @@ public class MainFrame extends JFrame{
 
     public void ExitP(){
         int num = JOptionPane.showConfirmDialog(null, "프로그램을 종료하시겠습니까?", "종료", JOptionPane.YES_NO_OPTION);
-            if(num == 0)
-            System.exit(0);
+            if(num == 0){
+                try{
+                        fout = new FileWriter(f);
+                        fout.write("nickName : " + nickName);
+                        fout.write("\r\n",0,2);
+                        fout.write("language : " + language);
+                        fout.write("\r\n",0,2);
+                        fout.close();
+                }catch(Exception ee){
+                    System.out.println("오류");
+                }
+                System.exit(0);
+            }
     }
     public static void main(String[] args) {
         MainFrame mf = new MainFrame();
