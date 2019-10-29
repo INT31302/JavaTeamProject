@@ -24,7 +24,6 @@ abs
 built-in function, [1]
 abs() (built-in function)
 (decimal.Context method)
-(in module operator)
 abspath() (in module os.path)
 abstract base class
 AbstractAsyncContextManager (class in contextlib)
@@ -49,7 +48,6 @@ accumulate() (in module itertools)
 aclose() (agen method)
 (contextlib.AsyncExitStack method)
 acos() (in module cmath)
-(in module math)
 acosh() (in module cmath)
 (in module math)
 acquire() (_thread.lock method)
