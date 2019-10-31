@@ -58,14 +58,9 @@ public class ProfilePanel extends JPanel{
         languageBtn.addKeyListener(new BackToMainEvent());
         add(languageBtn);
 
-        JLabel recordLabel = new JLabel("언어별 기록"); 
-        recordLabel.setFont(recordLabel.getFont().deriveFont(15.0f));
-        recordLabel.setSize(100,20);
-        recordLabel.setLocation(70,250);
-        add(recordLabel);
 
-        JButton backBtn = new JButton(new ImageIcon("img/w_back_btn.png"));
-        backBtn.setPressedIcon(new ImageIcon("img/w_back_pbtn.png"));
+        JButton backBtn = new JButton(new ImageIcon("img/p_back_btn.png"));
+        backBtn.setPressedIcon(new ImageIcon("img/p_back_pbtn.png"));
         backBtn.setSize(50,50);
         backBtn.setLocation(30,700);
         backBtn.setBorderPainted(false);
@@ -74,8 +69,8 @@ public class ProfilePanel extends JPanel{
         backBtn.addActionListener(new BackToMainBtnEvent());
         add(backBtn);
 
-        JButton helpBtn = new JButton(new ImageIcon("img/w_help_btn.png"));
-        helpBtn.setPressedIcon(new ImageIcon("img/w_help_pbtn.png"));
+        JButton helpBtn = new JButton(new ImageIcon("img/p_help_btn.png"));
+        helpBtn.setPressedIcon(new ImageIcon("img/p_help_pbtn.png"));
         helpBtn.setSize(50,50);
         helpBtn.setLocation(1110,700);
         helpBtn.setBorderPainted(false);
@@ -84,8 +79,8 @@ public class ProfilePanel extends JPanel{
         helpBtn.addActionListener(new helpBtnEvent());
         add(helpBtn);
 
-        JButton exitBtn = new JButton(new ImageIcon("img/w_exit_btn.png"));
-        exitBtn.setPressedIcon(new ImageIcon("img/w_exit_pbtn.png"));
+        JButton exitBtn = new JButton(new ImageIcon("img/p_exit_btn.png"));
+        exitBtn.setPressedIcon(new ImageIcon("img/p_exit_pbtn.png"));
         exitBtn.setSize(25,25);
         exitBtn.setLocation(1160,5);
         exitBtn.setBorderPainted(false);
@@ -94,8 +89,8 @@ public class ProfilePanel extends JPanel{
         exitBtn.addActionListener(new ExitPro());
         add(exitBtn);
 
-        JButton miniBtn = new JButton(new ImageIcon("img/w_mini_btn.png"));
-        miniBtn.setPressedIcon(new ImageIcon("img/w_mini_pbtn.png"));
+        JButton miniBtn = new JButton(new ImageIcon("img/p_mini_btn.png"));
+        miniBtn.setPressedIcon(new ImageIcon("img/p_mini_pbtn.png"));
         miniBtn.setSize(25,25);
         miniBtn.setLocation(1120,5);
         miniBtn.setBorderPainted(false);
