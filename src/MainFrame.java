@@ -15,6 +15,9 @@ public class MainFrame extends JFrame{
     private String languages[] = {"Java","C","Python"};
     private String language;
     private String nickName;
+    private int goalType;
+    private int avgValue;
+    private ArrayList<Integer> avgType = new ArrayList<>();
     private File f = new File("c:\\Temp\\test.txt");
     private FileWriter fout = null;
     public MainFrame(){
@@ -32,7 +35,6 @@ public class MainFrame extends JFrame{
                     fin = new FileReader(f);
                     BufferedReader bufReader = new BufferedReader(fin);
                     String line = "";
-                    int cnt = 0;
                     while((line = bufReader.readLine()) != null){
                         if(line.contains("language : ")){
                             for(int i = 0; i<3; i++){
@@ -46,7 +48,16 @@ public class MainFrame extends JFrame{
                             String a = "nickName : ";
                             nickName = line.substring(a.length());
                         }
+                        if(line.contains("goalValue : ")){
+                            String a = "goalValue : ";
+                            goalType = Integer.parseInt(line.substring(a.length()));
+                        }
+                        if(line.contains("avgTypoValue : ")){
+                            String a = "avgTypoValue : ";
+                            avgType.add(Integer.parseInt(line.substring(a.length())));
+                        }
                     }
+                    bufReader.close();
                 }catch(Exception ee){
                     System.out.println(ee);
                 }
@@ -55,6 +66,8 @@ public class MainFrame extends JFrame{
         else{
             language = languages[0];
             nickName = "user";
+            goalType = 100;
+            avgType.add(0);
         }
         this.addMouseListener(new moveWindows());
         this.addMouseMotionListener(new moveWindows());
@@ -93,11 +106,27 @@ public class MainFrame extends JFrame{
         }
           
     }
+    public ArrayList<Integer> getAvgType(){
+        return avgType;
+    }
+    public void setAvgType(int avgType){
+        this.avgType.add(avgType);
+        for(int i = 0 ; i<this.avgType.size(); i++){
+            avgValue += this.avgType.get(i);
+        }
+        avgValue = avgValue/this.avgType.size();
+    }
     public String getNickName(){
         return nickName;
     }
     public void setNickName(String nickName){
         this.nickName = nickName;
+    }
+    public int getGoalType(){
+        return goalType;
+    }
+    public void setGoalType(int goalType){
+        this.goalType = goalType;
     }
     public String getLanguage(){
         return language;
@@ -137,6 +166,10 @@ public class MainFrame extends JFrame{
                         fout.write("nickName : " + nickName);
                         fout.write("\r\n",0,2);
                         fout.write("language : " + language);
+                        fout.write("\r\n",0,2);
+                        fout.write("goalValue : " + goalType);
+                        fout.write("\r\n",0,2);
+                        fout.write("avgTypoValue : " + avgValue);
                         fout.write("\r\n",0,2);
                         fout.close();
                 }catch(Exception ee){
