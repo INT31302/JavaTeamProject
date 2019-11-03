@@ -2,6 +2,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.event.*;
+import java.util.*;
 
 public class ProfilePanel extends JPanel{
     private MainFrame mf;
@@ -9,18 +10,28 @@ public class ProfilePanel extends JPanel{
     private JLabel userLabel = new JLabel();
     private ImageIcon languageIcon[] = {new ImageIcon("img/java_btn.png"), new ImageIcon("img/c_btn.png"), new ImageIcon("img/python_btn.png")};
     private JButton languageBtn = new JButton();
+    private String nickName;
+    private int goalValue;
+    private int sum = 0;
+    private ArrayList<Integer> avgType = new ArrayList<>();
 
     public ProfilePanel(MainFrame mf){
         this.mf = mf;
         setLayout(null);
         setBackground(Color.WHITE);
-
+        avgType = mf.getAvgType();
         for(int i = 0; i<settingLabel.length; i++){
             settingLabel[i] = new JLabel(Integer.toString(0));
             settingLabel[i].setSize(100,20);
-            settingLabel[i].setLocation(820+(i*100),60);
+            settingLabel[i].setLocation(780+(i*100),60);
+            settingLabel[i].setHorizontalAlignment(JLabel.CENTER);
             add(settingLabel[i]);
         }
+        for(int i = 0; i<avgType.size(); i++){
+            sum += avgType.get(i);
+        }
+        settingLabel[0].setText(Integer.toString(sum/avgType.size()));
+        settingLabel[1].setText(Integer.toString(mf.getGoalType()));
         userLabel.setText(mf.getNickName());
         userLabel.setSize(100,30);
         userLabel.setLocation(100,35);
@@ -109,29 +120,48 @@ public class ProfilePanel extends JPanel{
         setOpaque(false);
         super.paintComponent(g);
     }
+    private int showMultipleInputMessageDialog(){
+        JLabel la1 = new JLabel("변경할 닉네임을 입력해주세요. (8자리 이하)");
+        JTextField tf1 = new JTextField(userLabel.getText() ,10);
+        JLabel la2 = new JLabel("목표 타수를 입력해주세요. (100이상 1000이하)");
+        JTextField tf2 = new JTextField(settingLabel[1].getText(), 10);
 
+        Object[] inputFields = {la1,tf1,la2,tf2};
+        int option = JOptionPane.showConfirmDialog(this,inputFields,"사용자 설정", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+        if(option == JOptionPane.OK_OPTION){
+            nickName = tf1.getText();
+            if(tf2.getText() == "") goalValue = 100;
+            else goalValue = Integer.parseInt(tf2.getText());
+        }
+        return option;
+    }
     class ChangeName implements ActionListener{
         public void actionPerformed(ActionEvent e){
-            try{
-                String name = JOptionPane.showInputDialog("변경할 닉네임을 입력해주세요. (8자리 이하)");
+            if(showMultipleInputMessageDialog()==0)
+            {
                 while(true){
-                    if(name.length()>8){
-                        JOptionPane.showMessageDialog(null, "8자리 이하로 입력해주세요.", "자릿수 초과", JOptionPane.WARNING_MESSAGE);
-                        name = JOptionPane.showInputDialog("변경할 닉네임을 입력해주세요. (8자리 이하)");
+                    if(nickName.length()>8){
+                        JOptionPane.showMessageDialog(null, "별명을 8자리 이하로 입력해주세요.", "자릿수 초과", JOptionPane.WARNING_MESSAGE);
+                        if(showMultipleInputMessageDialog()!=0) break;
                     }
-                    else if(name.length()==0){
-                        JOptionPane.showMessageDialog(null, "최소 1글자 이상 입력해주세요.", "자릿수 미만", JOptionPane.WARNING_MESSAGE);
-                        name = JOptionPane.showInputDialog("변경할 닉네임을 입력해주세요. (8자리 이하)");
+                    else if(nickName.length()==0){
+                        JOptionPane.showMessageDialog(null, "별명을 최소 1글자 이상 입력해주세요.", "자릿수 미만", JOptionPane.WARNING_MESSAGE);
+                        if(showMultipleInputMessageDialog()!=0) break;
+                    }
+                    else if(goalValue > 1000){
+                        JOptionPane.showMessageDialog(null, "목표 타수를 1000 이하로 입력해주세요.", "자릿수 초과", JOptionPane.WARNING_MESSAGE);
+                        if(showMultipleInputMessageDialog()!=0) break;
+                    }
+                    else if(goalValue < 99){
+                        JOptionPane.showMessageDialog(null, "목표 타수를 최소 100 이상로 입력해주세요.", "자릿수 미만", JOptionPane.WARNING_MESSAGE);
+                        if(showMultipleInputMessageDialog()!=0) break;
                     }
                     else break;
                 }
-                if(name!=null){
-                    userLabel.setText(name);
-                    mf.setNickName(name);
-                }
-                    
-            }catch(Exception ex){
-
+                userLabel.setText(nickName);
+                settingLabel[1].setText(Integer.toString(goalValue));
+                mf.setNickName(nickName);
+                mf.setGoalType(goalValue);
             }
         }
     }
