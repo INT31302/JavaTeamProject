@@ -3,6 +3,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
 import java.io.*;
+import java.sql.Time;
 
 
 public class SentensePracticePanel extends JPanel{
@@ -22,13 +23,17 @@ public class SentensePracticePanel extends JPanel{
     private JLabel currentType_Label;
     private JLabel goalType_Label;
     private JLabel highestType_Label;
+    private int inaccuracy_cnt = 0;
     private int total = 0;
     private int index = 0;
     private char ch;
-    private java.util.List<String> tmp = new ArrayList<String>();
-    private java.util.List<String> text = new ArrayList<String>();
+    private int back;
+    private int n;
+    private ArrayList<String> tmp = new ArrayList<String>();
+    private ArrayList<String> text = new ArrayList<String>();
     TypeRunnable runnable = new TypeRunnable();
     Thread th = new Thread(runnable);
+    private long beforeTime;
     public SentensePracticePanel(MainFrame mf, String language){
         this.mf = mf;
         setLayout(null);
@@ -119,10 +124,11 @@ public class SentensePracticePanel extends JPanel{
         goalType_bar.setBorderPainted(false);
         add(goalType_bar);
 
-        goalType_Label = new JLabel("0");
+        goalType_Label = new JLabel(Integer.toString(mf.getGoalType()));
         goalType_Label.setSize(100,30);
         goalType_Label.setLocation(740,80);
         add(goalType_Label);
+        goalType_bar.setValue(mf.getGoalType());
 
         highestType_bar = new JProgressBar(0, 1000);
         highestType_bar.setSize(80, 10);
@@ -204,19 +210,18 @@ public class SentensePracticePanel extends JPanel{
     }
     class TypeRunnable implements Runnable{
         public void run(){
-            int n =1000;
-            while(true){
-                currentType_Label.setText(Integer.toString(n));
-                currentType_bar.setValue(n);
-                if(n>0){
-                    if(n-80<0) n = 0;
-                    else n-=80;
-                }
+           while(true){
                 try{
-                    Thread.sleep(700);
+                    Thread.sleep(100);
                 }catch(InterruptedException e){
                     return;
                 }
+                long afterTime = System.nanoTime();
+                long secDiffTime = (afterTime -beforeTime)/100000000;
+                n = (int)((typo - back*2)*78/secDiffTime * 6);
+                if(n<0) n=0;
+                currentType_Label.setText(Integer.toString(n));
+                currentType_bar.setValue(n);
             }
         }
     }
@@ -230,13 +235,22 @@ public class SentensePracticePanel extends JPanel{
         public void keyTyped(KeyEvent e){
             int key = e.getKeyChar();
             if(key== KeyEvent.VK_BACK_SPACE){ // 백스페이스 입력 시 실행
-                
+                back++;
                 if(typeLabel.getText().length()>0){ // 입력된 텍스트가 있을 경우
+                    ch =  questionLabel[0].getText().charAt(typeLabel.getText().length()-1);
+                    if(typeLabel.getText().charAt(typeLabel.getText().length()-1) != ch) {
+                        inaccuracy_cnt--;
+                        accuracy = 100 - (int)((double)inaccuracy_cnt/typeLabel.getText().length() * 100);
+                         accuracy_bar.setValue(accuracy);
+                        accuracy_Per.setText(Integer.toString(accuracy)+"%");
+                    }
                     typeLabel.setText(typeLabel.getText().substring(0, typeLabel.getText().length()-1)); // 입력창에 입력값 중 마지막 문자 삭제
                     ch = questionLabel[0].getText().charAt(typeLabel.getText().length()); // 다음에 입력할 문자를 다시 받아옴
+                    
                 }
                 if(questionLabel[0].getText().substring(0, typeLabel.getText().length()).equals(typeLabel.getText())) // 한문자씩 올바르게 입력했는지
                     typeLabel.setForeground(Color.BLACK); // 맞으면 입력창 글자색 검정으로 변경
+                    
                 else
                     typeLabel.setForeground(Color.RED); // 틀리면 입력창 글자색 빨강으로 변경
             }
@@ -247,17 +261,13 @@ public class SentensePracticePanel extends JPanel{
                     highestType_Label.setText(currentType_Label.getText());
                     highestType_bar.setValue(currentType_bar.getValue());
                 }
+                mf.setAvgType(Integer.parseInt(currentType_Label.getText()));
                 th = new Thread(runnable);
                 index++; //다음 문제 단어 받을 준비함.
-                if(questionLabel[0].getText().equals(typeLabel.getText())){
-                }
                 progress = 100*index/total; // 진행율 계산
                 progress_Per.setText(Integer.toString(progress)+"%");
                 progress_bar.setValue(progress);
-
-                accuracy = 100-(int)(100*typo/index); //정확도 계산
-                accuracy_bar.setValue(accuracy);
-                accuracy_Per.setText(Integer.toString(accuracy)+"%");
+                inaccuracy_cnt = 0;
                 if(progress==100){ // 모두 끝 마쳤을 경우
                     progress = 0;
                     JOptionPane.showMessageDialog(null, "수고하셨습니다.", "종료", JOptionPane.INFORMATION_MESSAGE);
@@ -276,17 +286,29 @@ public class SentensePracticePanel extends JPanel{
                     keyTyped(e); // 이벤트 재실행
                 }else{
                     typeLabel.setText(typeLabel.getText()+e.getKeyChar()); // 아닐경우 입력된 값을 입력창에 추가
-                    if(th.getState() == Thread.State.NEW) th.start();
+                    if(th.getState() == Thread.State.NEW) {
+                        th.start();
+                        beforeTime = System.nanoTime();
+                    }
+                    if(questionLabel[0].getText().substring(typeLabel.getText().length()-1, typeLabel.getText().length()).equals(typeLabel.getText().substring(typeLabel.getText().length()-1)))
+                    typo++;
+                    else inaccuracy_cnt++;
+                        accuracy = 100 - (int)((double)inaccuracy_cnt/typeLabel.getText().length() * 100);
+                        accuracy_bar.setValue(accuracy);
+                        accuracy_Per.setText(Integer.toString(accuracy)+"%");
+
                 }
                     
+               
 
                 if(questionLabel[0].getText().substring(0, typeLabel.getText().length()).equals(typeLabel.getText())){ // 한문자씩 올바르게 입력했는지
                     typeLabel.setForeground(Color.BLACK); // 맞으면 입력창 글자색 검정으로 변경
-                    currentType_bar.setValue(currentType_bar.getValue()+60);
+                    currentType_bar.setValue(currentType_bar.getValue());
                     currentType_Label.setText(Integer.toString(currentType_bar.getValue()));
                 }
                 else
                     typeLabel.setForeground(Color.RED); // 틀리면 입력창 글자색 빨강으로 변경
+                
             }
         }
     }
