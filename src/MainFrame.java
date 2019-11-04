@@ -17,6 +17,7 @@ public class MainFrame extends JFrame{
     private String nickName;
     private int goalType;
     private int avgValue;
+    private int goalAccuracy;
     private ArrayList<Integer> avgType = new ArrayList<>();
     private File f = new File("c:\\Temp\\test.txt");
     private FileWriter fout = null;
@@ -55,6 +56,10 @@ public class MainFrame extends JFrame{
                         if(line.contains("avgTypoValue : ")){
                             String a = "avgTypoValue : ";
                             avgType.add(Integer.parseInt(line.substring(a.length())));
+                        }
+                        if(line.contains("goalAccuracyValue : ")){
+                            String a= "goalAccuracyValue : ";
+                            goalAccuracy = Integer.parseInt(line.substring(a.length()));
                         }
                     }
                     bufReader.close();
@@ -116,6 +121,12 @@ public class MainFrame extends JFrame{
         }
         avgValue = avgValue/this.avgType.size();
     }
+    public int getGoalAccuracyValue(){
+        return goalAccuracy;
+    }
+    public void setGoalAccuracyValue(int goalAccuracy){
+        this.goalAccuracy = goalAccuracy;
+    }
     public String getNickName(){
         return nickName;
     }
@@ -170,6 +181,8 @@ public class MainFrame extends JFrame{
                         fout.write("goalValue : " + goalType);
                         fout.write("\r\n",0,2);
                         fout.write("avgTypoValue : " + avgValue);
+                        fout.write("\r\n",0,2);
+                        fout.write("goalAccuracyValue : " + goalAccuracy);
                         fout.write("\r\n",0,2);
                         fout.close();
                 }catch(Exception ee){
