@@ -344,7 +344,12 @@ public class WordPracticePanel extends JPanel{
         public QuestionDialog(JFrame frame, String title){
             super(frame, title);
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            setSize(600,600);
+            ImageIcon bg_img = new ImageIcon("img/w_help_img.png");
+            JLabel bg = new JLabel(bg_img);
+            bg.setSize(600,600);
+            bg.setLocation(0, 10);
+            add(bg);
+            setSize(610,610);
             addKeyListener(new KeyAdapter(){
                 public void keyPressed(KeyEvent e){
                     if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
