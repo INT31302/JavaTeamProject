@@ -13,6 +13,7 @@ public class ProfilePanel extends JPanel{
     private String nickName;
     private int goalValue;
     private int sum = 0;
+    private int accuracyValue;
     private ArrayList<Integer> avgType = new ArrayList<>();
 
     public ProfilePanel(MainFrame mf){
@@ -32,6 +33,7 @@ public class ProfilePanel extends JPanel{
         }
         settingLabel[0].setText(Integer.toString(sum/avgType.size()));
         settingLabel[1].setText(Integer.toString(mf.getGoalType()));
+        settingLabel[2].setText(Integer.toString(mf.getGoalAccuracyValue()));
         userLabel.setText(mf.getNickName());
         userLabel.setSize(100,30);
         userLabel.setLocation(100,35);
@@ -125,13 +127,17 @@ public class ProfilePanel extends JPanel{
         JTextField tf1 = new JTextField(userLabel.getText() ,10);
         JLabel la2 = new JLabel("목표 타수를 입력해주세요. (100이상 1000이하)");
         JTextField tf2 = new JTextField(settingLabel[1].getText(), 10);
+        JLabel la3 = new JLabel("목표 정확도를 입력해주세요. (50이상 100이하)");
+        JTextField tf3 = new JTextField(settingLabel[2].getText(), 10);
 
-        Object[] inputFields = {la1,tf1,la2,tf2};
+        Object[] inputFields = {la1, tf1, la2, tf2, la3, tf3};
         int option = JOptionPane.showConfirmDialog(this,inputFields,"사용자 설정", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
         if(option == JOptionPane.OK_OPTION){
             nickName = tf1.getText();
             if(tf2.getText() == "") goalValue = 100;
             else goalValue = Integer.parseInt(tf2.getText());
+            if(tf3.getText() == "")  accuracyValue = 90;
+            else accuracyValue = Integer.parseInt(tf3.getText());
         }
         return option;
     }
@@ -152,16 +158,26 @@ public class ProfilePanel extends JPanel{
                         JOptionPane.showMessageDialog(null, "목표 타수를 1000 이하로 입력해주세요.", "자릿수 초과", JOptionPane.WARNING_MESSAGE);
                         if(showMultipleInputMessageDialog()!=0) break;
                     }
-                    else if(goalValue < 99){
-                        JOptionPane.showMessageDialog(null, "목표 타수를 최소 100 이상로 입력해주세요.", "자릿수 미만", JOptionPane.WARNING_MESSAGE);
+                    else if(goalValue < 100){
+                        JOptionPane.showMessageDialog(null, "목표 타수를 최소 100 이상 입력해주세요.", "자릿수 미만", JOptionPane.WARNING_MESSAGE);
+                        if(showMultipleInputMessageDialog()!=0) break;
+                    }
+                    else if(accuracyValue > 100){
+                        JOptionPane.showMessageDialog(null, "목표 정확도를 100 이하로 입력해주세요.", "자릿수 초과", JOptionPane.WARNING_MESSAGE);
+                        if(showMultipleInputMessageDialog()!=0) break;
+                    }
+                    else if(accuracyValue < 50){
+                        JOptionPane.showMessageDialog(null, "목표 정확도를 50 이상 입력해주세요.", "자릿수 미만", JOptionPane.WARNING_MESSAGE);
                         if(showMultipleInputMessageDialog()!=0) break;
                     }
                     else break;
                 }
                 userLabel.setText(nickName);
                 settingLabel[1].setText(Integer.toString(goalValue));
+                settingLabel[2].setText(Integer.toString(accuracyValue));
                 mf.setNickName(nickName);
                 mf.setGoalType(goalValue);
+                mf.setGoalAccuracyValue(accuracyValue);
             }
         }
     }
@@ -197,7 +213,12 @@ public class ProfilePanel extends JPanel{
         public QuestionDialog(JFrame frame, String title){
             super(frame, title);
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            setSize(600,600);
+            ImageIcon bg_img = new ImageIcon("img/p_help_img.png");
+            JLabel bg = new JLabel(bg_img);
+            bg.setSize(600,600);
+            bg.setLocation(0, 10);
+            add(bg);
+            setSize(610,610);
             addKeyListener(new KeyAdapter(){
                 public void keyPressed(KeyEvent e){
                     if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
