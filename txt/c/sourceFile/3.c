@@ -32,27 +32,27 @@ void main(){
 	char dname[10];
 	char aname[10];
 
-	printf("¹è¿­ ÀÔ·Â ");
+	printf("ï¿½è¿­ ï¿½Ô·ï¿½ ");
 	scanf("%d", &size);
 	clase = (struct student *)malloc(sizeof(struct student)*size);
 	check = (int *)malloc(sizeof(int)*size);
-	printf("ÀÌ¸§ 1Â÷Á¡¼ö 2Â÷Á¡¼ö 3Â÷Á¡¼ö 4Â÷Á¡¼ö ³â ¿ù ÀÏ\n");
+	printf("ï¿½Ì¸ï¿½ 1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 3ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 4ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½\n");
 	for (i = 0; i < size; i++){
 		scanf("%s %d %d %d %d %d %d %d", clase[i].name,
 			&clase[i].score[0], &clase[i].score[1], &clase[i].score[2], &clase[i].score[3],
 			&clase[i].birthday.year, &clase[i].birthday.month, &clase[i].birthday.day);
 		check[i] = 1;
 	}
-	printf("°Ë»öÇÒ ÀÌ¸§Àº? ? ");
+	printf("ï¿½Ë»ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½? ? ");
 	scanf("%s", sname);
-	printf("¹Ù²Ü ÀÌ¸§Àº? ");
+	printf("ï¿½Ù²ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½? ");
 	scanf("%s", rname);
 	search(clase, sname, rname, size);
 	output(clase, check, size);
-	printf("Áö¿ï ÀÌ¸§Àº? ");
+	printf("ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½? ");
 	scanf("%s", dname);
 	delete(clase, dname, check, size);
-	printf("Ãß°¡ÇÒ ÀÌ¸§Àº? ");
+	printf("ï¿½ß°ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½? ");
 	add(clase, aname,check, &size);
 	output(clase, check, size);
 }

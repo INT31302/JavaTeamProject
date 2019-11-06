@@ -21,11 +21,11 @@ void main()
 {
 	/*int mcnt=5;*/ int i,size;
 	int check[10]={1,1,1,1,1};
-	char fname[10]; //°Ë»öÇÒ ÀÌ¸§
-	char nname[10]; //¹Ù²Ü ÀÌ¸§
-	char dname[10]; //»èÁ¦ÇÒ ÀÌ¸§
+	char fname[10]; //ê²€ìƒ‰í•  ì´ë¦„
+	char nname[10]; //ë°”ê¿€ ì´ë¦„
+	char dname[10]; //ì‚­ì œí•  ì´ë¦„
 	struct student *clase;
-	printf("¹è¿­");
+	printf("ë°°ì—´");
 	scanf("%d", &size); 
 	clase = (struct student *)malloc(sizeof(struct student)*size);
 	for(i=0; i<size; i++)
@@ -34,13 +34,13 @@ void main()
 			&clase[i].birthday.year,&clase[i].birthday.month,&clase[i].birthday.day);
 	}
 	fflush(stdin);
-	printf("°Ë»öÇÒ ÀÌ¸§");
+	printf("ê²€ìƒ‰í•  ì´ë¦„");
 	gets(fname);
 	printf("\n");
 	fflush(stdin);
-	printf("¹Ù²Ü ÀÌ¸§");
+	printf("ë°”ê¿€ ì´ë¦„");
 	gets(nname);
-	printf("»èÁ¦ÇÒ ÀÌ¸§");
+	printf("ì‚­ì œí•  ì´ë¦„");
 	gets(dname);
 	search(clase,fname,nname,size);
 	del(clase,fname,check,dname,size);
@@ -61,7 +61,7 @@ int search(struct student clase[],char fname[], char nname[],int size)
 	}
 	if(count ==0)
 	{
-		printf("Á¸ÀçÇÏÁö¾Ê½À´Ï´Ù");
+		printf("ì¡´ì¬í•˜ì§€ì•ŠìŠµë‹ˆë‹¤");
 	}
 	return 0;
 }
@@ -86,7 +86,7 @@ void output_info(struct student clase[],int size,int check[])
 			sum += clase[i].score[j];
 		}
 		if(check[i]==1)
-		printf("%s %d %d %d %d %d %d %d ÇÕÀº %d Æò±ÕÀº %.0lf\n",clase[i].name,clase[i].score[0],clase[i].score[1],clase[i].score[2],clase[i].score[3],clase[i].birthday.year,
+		printf("%s %d %d %d %d %d %d %d í•©ì€ %d í‰ê· ì€ %.0lf\n",clase[i].name,clase[i].score[0],clase[i].score[1],clase[i].score[2],clase[i].score[3],clase[i].birthday.year,
 			clase[i].birthday.month,clase[i].birthday.day,sum,sum/4.0);
 	}
 }

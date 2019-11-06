@@ -14,7 +14,7 @@ void main(){
 			temp = ch - min;
 			num += temp;
 			if (num > 999){
-				printf("\n1000º¸´Ù ÀÛÀº ¼ö¸¦ ÀÔ·ÂÇÏ¼¼¿ä.\n");
+				printf("\n1000ë³´ë‹¤ ì‘ì€ ìˆ˜ë¥¼ ì…ë ¥í•˜ì„¸ìš”.\n");
 				break;
 			}
 		}
@@ -34,7 +34,7 @@ void main(){
 		}
 		if (myoprator != ' '){
 			if (num == 0){
-				printf("\n»ó¼ö¸¦ ÀÔ·ÂÇÏ¼¼¿ä.\n");
+				printf("\nìƒìˆ˜ë¥¼ ì…ë ¥í•˜ì„¸ìš”.\n");
 				break;
 			}
 			temp = 0;
@@ -49,13 +49,13 @@ void main(){
 			temp = ch - min;
 			num2 += temp;
 			if (num2 > 999){
-				printf("\n1000º¸´Ù ÀÛÀº ¼ö¸¦ ÀÔ·ÂÇÏ¼¼¿ä.\n");
+				printf("\n1000ë³´ë‹¤ ì‘ì€ ìˆ˜ë¥¼ ì…ë ¥í•˜ì„¸ìš”.\n");
 				break;
 			}
 		}
 		if (ch == '='){
 			if (num2 == 0){
-				printf("\n»ó¼ö¸¦ ¸ÕÀú ÀÔ·ÂÇÏ¼¼¿ä.\n");
+				printf("\nìƒìˆ˜ë¥¼ ë¨¼ì € ì…ë ¥í•˜ì„¸ìš”.\n");
 			}
 			else{
 				switch (myoprator){

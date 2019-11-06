@@ -5,12 +5,12 @@ void main()
 {
 	char data[50], data1[2];
 	int i = 0, j = 0;
-	printf("¹®ÀÚ¿­ ÀÔ·ÂÇÏ¼¼¿ä :");
+	printf("ë¬¸ìì—´ ì…ë ¥í•˜ì„¸ìš” :");
 	gets(data);
 	int len = strlen(data);
 	int count = 0;
 	
-	printf("»èÁ¦ÇÒ ¹®ÀÚ¸¦ ÀÔ·ÂÇÏ¼¼¿ä. : ");
+	printf("ì‚­ì œí•  ë¬¸ìë¥¼ ì…ë ¥í•˜ì„¸ìš”. : ");
 	gets(data1);
 	while (i < len){
 		if (data1[0] == data[i]){
@@ -28,5 +28,5 @@ void main()
 	if (count != 0)
 		puts(data);
 	else
-		printf("¹®ÀÚ¿­ \"%s\"¿¡´Â ¹®ÀÚ \'%s\'°¡ ¾ø½À´Ï´Ù.\n", data, data1);
+		printf("ë¬¸ìì—´ \"%s\"ì—ëŠ” ë¬¸ì \'%s\'ê°€ ì—†ìŠµë‹ˆë‹¤.\n", data, data1);
 }

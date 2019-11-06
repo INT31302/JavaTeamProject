@@ -17,11 +17,11 @@ void main(){
 			case 13:
 			case '+':
 			case '=':
-				printf("\nÀÔ·ÂÇÑ ¼ö´Â %dÀÔ´Ï´Ù.\n", num);
+				printf("\nì…ë ¥í•œ ìˆ˜ëŠ” %dì…ë‹ˆë‹¤.\n", num);
 				isNumber = 0;
 				break;
 			default:
-				printf("\nÀß¸øµÈ °ªÀ» ÀÔ·ÂÇÏ¿´½À´Ï´Ù.\n");
+				printf("\nì˜ëª»ëœ ê°’ì„ ì…ë ¥í•˜ì˜€ìŠµë‹ˆë‹¤.\n");
 				isNumber = 0;
 				break;
 			}
