@@ -299,8 +299,6 @@ public class SentensePracticePanel extends JPanel{
 
                 }
                     
-               
-
                 if(questionLabel[0].getText().substring(0, typeLabel.getText().length()).equals(typeLabel.getText())){ // 한문자씩 올바르게 입력했는지
                     typeLabel.setForeground(Color.BLACK); // 맞으면 입력창 글자색 검정으로 변경
                     currentType_bar.setValue(currentType_bar.getValue()); // 현재 타수 Bar Value 변경

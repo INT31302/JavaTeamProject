@@ -219,7 +219,6 @@ public class WordPracticePanel extends JPanel{
                 return; // 종료
             }
         }
-
         if(ch+32 >='a' && ch+32 <='z') shiftImage.setVisible(true); //'A' ~ 'Z' 가 입력 되었을 경우 shiftImage 보이게 설정
         else shiftImage.setVisible(false); // 아닐 경우 shiftImage 안보이게 설정
 
@@ -315,7 +314,6 @@ public class WordPracticePanel extends JPanel{
                 }
             }
             else{
-                 
                 if(questionLabel.getText().length() == typeLabel.getText().length()){ // 문제 단어 텍스트 길이와 입력창 텍스트 길이가 같을 경우
                     e.consume(); // 입력 값를 전달하지 않음.
                     e.setKeyChar((char)KeyEvent.VK_ENTER); // 현재 키보드 이벤트를 엔터 눌렀을 때로 변경
