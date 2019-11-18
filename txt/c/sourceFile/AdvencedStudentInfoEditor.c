@@ -32,27 +32,27 @@ void main(){
 	char dname[10];
 	char aname[10];
 
-	printf("�迭 �Է� ");
+	printf("배열 입력 ");
 	scanf("%d", &size);
 	clase = (struct student *)malloc(sizeof(struct student)*size);
 	check = (int *)malloc(sizeof(int)*size);
-	printf("�̸� 1������ 2������ 3������ 4������ �� �� ��\n");
+	printf("이름 1차점수 2차점수 3차점수 4차점수 년 월 일\n");
 	for (i = 0; i < size; i++){
 		scanf("%s %d %d %d %d %d %d %d", clase[i].name,
 			&clase[i].score[0], &clase[i].score[1], &clase[i].score[2], &clase[i].score[3],
 			&clase[i].birthday.year, &clase[i].birthday.month, &clase[i].birthday.day);
 		check[i] = 1;
 	}
-	printf("�˻��� �̸���? ? ");
+	printf("검색할 이름은? ? ");
 	scanf("%s", sname);
-	printf("�ٲ� �̸���? ");
+	printf("바꿀 이름은? ");
 	scanf("%s", rname);
 	search(clase, sname, rname, size);
 	output(clase, check, size);
-	printf("���� �̸���? ");
+	printf("지울 이름은? ");
 	scanf("%s", dname);
 	delete(clase, dname, check, size);
-	printf("�߰��� �̸���? ");
+	printf("추가할 이름은? ");
 	add(clase, aname,check, &size);
 	output(clase, check, size);
 }
