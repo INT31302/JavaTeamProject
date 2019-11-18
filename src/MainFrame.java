@@ -10,6 +10,7 @@ public class MainFrame extends JFrame{
     private ProfilePanel p_Panel = null;
     private WordPracticePanel w_Panel = null;
     private SentensePracticePanel sen_Panel = null;
+    private SourcePracticePanel sou_Panel = null;
     private Point initialClick;
     private int lan_index = 0;
     private String languages[] = {"Java","C","Python"};
@@ -100,6 +101,12 @@ public class MainFrame extends JFrame{
             sen_Panel = new SentensePracticePanel(this, language); // 문장 연습 패널 생성(현재 JFrame정보와 현재 언어 전달)
             getContentPane().add(sen_Panel); // 문장 연습 패널 추가
             sen_Panel.requestFocusInWindow(); //문장 연습 패널에 포커스 강제 설정
+            break;
+            case "MainToSou":
+            sou_Panel = new SourcePracticePanel(this, language);
+            getContentPane().add(sou_Panel);
+            sou_Panel.requestFocusInWindow();
+            break;
         }
         revalidate(); // 프레임 새로고침
         repaint(); // 프레임 다시 그리기
