@@ -1,6 +1,8 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.util.*;
+import java.io.*;
 
 class MainPanel extends JPanel{
     private MainFrame mf;
@@ -37,6 +39,7 @@ class MainPanel extends JPanel{
         menuBtn[3].setPressedIcon(new ImageIcon("img/game_pbtn.png"));
         menuBtn[0].addActionListener(new MainToWordBtnEvent()); // 단어 연습 버튼 이벤트 추가
         menuBtn[1].addActionListener(new MainToSenBtnEvent());// 문장 연습 버튼 이벤트 추가
+        menuBtn[2].addActionListener(new MainToSouBtnEvent());// 소스 연습 버튼 이벤트 추가
 
         JButton exitBtn = new JButton(new ImageIcon("img/exit_btn.png")); // 닫기 버튼 생성 및 설정
         exitBtn.setPressedIcon(new ImageIcon("img/exit_pbtn.png"));
@@ -57,7 +60,6 @@ class MainPanel extends JPanel{
         miniBtn.setFocusPainted(false);
         miniBtn.addActionListener(new MinimizneWindows()); // 최소화 버튼 이벤트 추가
         add(miniBtn);
-
         this.setFocusable(true); // 패널 포커스 활성화
         this.requestFocus(); //패널 강제 포커스 설정
         this.addKeyListener(new ExitProgram()); // 패널 키 이벤트 추가
@@ -84,6 +86,41 @@ class MainPanel extends JPanel{
         }
     }
 
+    class MainToSouBtnEvent implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+            String language = mf.getLanguage();
+            if(showSelectTextFileDialog(language)==JOptionPane.OK_OPTION) mf.change("MainToSou");
+        }  
+    }
+    private int showSelectTextFileDialog(String language){ // 프로필 변경 버튼 눌렀을 시 실행할 Custom Dialog
+        ArrayList<String> list = new ArrayList<String>();
+        File files = new File("txt/java/sourceFile"); // 기본 파일을 java 파일로 설정
+        switch(language){ //언어별 파일 변경
+            case "Java":
+            files = new File("txt/java/sourceFile");
+            break;
+            case "C":
+            files = new File("txt/c/sourceFile");
+            break;
+            case "Python":
+            files = new File("txt/python/sourceFile");
+            break;
+        }
+
+        File[] subFiles = files.listFiles(); // 폴더 내 파일 리스트 불러옴
+        for(int i =0; i<subFiles.length; i++){
+            list.add(subFiles[i].getName());
+        }
+        JLabel la1 = new JLabel("연습하고 싶은 소스를 선택하여 주세요");
+        //JScrollPane sp = 
+        JList<Object> li1 = new JList<>(list.toArray());
+
+        Object[] inputFields = {la1, li1}; // Dialog에 넣기 위한 오브젝트들 추가
+        int option = JOptionPane.showConfirmDialog(this,inputFields,"소스 선택", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+        if(option == JOptionPane.OK_OPTION){ // OK버튼 눌렀을 경우
+        }
+        return option; // option 값 리턴
+    }
     class MinimizneWindows implements ActionListener{ // 최소화 버튼 이벤트
         public void actionPerformed(ActionEvent e){
             mf.setState(1); // MainFrame 상태를 최소화 시킨다
