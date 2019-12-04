@@ -27,6 +27,7 @@ public class SentensePracticePanel extends JPanel {
     private char ch;
     private int back; // 백스페이스 입력 수
     private int n;
+    private String language;
     private ArrayList<String> tmp = new ArrayList<String>(); // 파일에서 문장을 입력받는 ArrayList
     private ArrayList<String> text = new ArrayList<String>(); // 랜덤 순서로 문장을 입력 받는 ArrayList
     TypeRunnable runnable = new TypeRunnable(); // 현재타수 계산 Runnable
@@ -35,6 +36,7 @@ public class SentensePracticePanel extends JPanel {
 
     public SentensePracticePanel(MainFrame mf, String language) {
         this.mf = mf;
+        this.language = language;
         setLayout(null);
         File files = new File("txt/java/sourceFile"); // 기본 파일을 java 파일로 설정
         switch (language) { // 언어별 파일 변경
@@ -278,7 +280,8 @@ public class SentensePracticePanel extends JPanel {
                     highestType_Label.setText(currentType_Label.getText()); // 최고타수 Labal Text 변경
                     highestType_bar.setValue(currentType_bar.getValue()); // 최고타수 Bar Value 변경
                 }
-                mf.setAvgType(Integer.parseInt(currentType_Label.getText())); // MainFrame setAvgType 함수를 이용하여 현재 타수 전송
+                mf.setAvgType(Integer.parseInt(currentType_Label.getText()), language); // MainFrame setAvgType 함수를 이용하여
+                                                                                        // 현재 타수 전송
                 th = new Thread(runnable); // 스레드 재설정
                 index++; // 다음 문제 단어 받을 준비함.
                 progress = 100 * index / total; // 진행율 계산
