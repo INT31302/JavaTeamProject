@@ -417,9 +417,11 @@ public class WordPracticePanel extends JPanel {
     class BackToMainEvent extends KeyAdapter { // 패널 키 이벤트
         public void keyPressed(KeyEvent e) { // 키 입력했을 경우
             if (e.getKeyCode() == KeyEvent.VK_ESCAPE) { // 'Esc' 키일 경우
-                if (index != 0) // 진행중이였을 경우
+                if (index != 0) {// 진행중이였을 경우
                     JOptionPane.showMessageDialog(null, "수고하셨습니다.", "종료", JOptionPane.INFORMATION_MESSAGE); // dialog
                                                                                                             // 띄워줌
+
+                }
                 mf.change("BackToMain"); // MainFrame change 함수를 이용하여 MainPanel 불러옴
             }
         }
