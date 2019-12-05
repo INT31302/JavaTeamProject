@@ -149,12 +149,15 @@ public class ProfilePanel extends JPanel {
         for (int i = 0; i < recordMap.size(); i++) {
             g2.drawLine(340 + (i * 70), 620, 340 + (i * 70), 640); // 데이터 수 만큼 x축 구분선 긋기
         }
+        g.setFont(g.getFont().deriveFont(13.0F));
+        g.setFont(g.getFont().deriveFont(Font.BOLD));
         Collection<Integer> values = recordMap.values();
         int cnt = 0;
         for (Integer value : values) {
             g2.setStroke(new BasicStroke(7)); // 선 굵기 설정
             pointArray.add(cnt, 630 - (int) (value * 0.4)); // 포인트별 좌표 pointArray에 저장
             g2.drawLine(340 + (cnt * 70), pointArray.get(cnt), 340 + (cnt * 70), pointArray.get(cnt)); // 포인트 그리기
+            g.drawString(Integer.toString(value), 330 + (cnt * 70), pointArray.get(cnt) - 15);
             if (cnt > 0) {
                 g2.setStroke(new BasicStroke(2)); // 선 굵기 설정
                 g2.drawLine(340 + (cnt - 1) * 70, pointArray.get(cnt - 1), 340 + (cnt * 70), pointArray.get(cnt)); // 포인트
@@ -163,8 +166,7 @@ public class ProfilePanel extends JPanel {
             }
             cnt++;
         }
-        g.setFont(g.getFont().deriveFont(13.0F));
-        g.setFont(g.getFont().deriveFont(Font.BOLD));
+
         g.drawString("1000", 255, 230); // y축 최대 구분값 그리기
         g.drawString("500", 255, 430); // y축 중간 구분값 그리기
         setOpaque(false);
