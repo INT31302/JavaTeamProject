@@ -141,7 +141,6 @@ public class GamePanel extends JPanel {
 			setLayout(new FlowLayout());
 			setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			setSize(400, 300);
-			setLocation(2500, 500);
 			for (int i = 0; i < levelButton.length; i++) {
 				levelButton[i] = new JRadioButton(level[i]);
 				group.add(levelButton[i]);
@@ -179,7 +178,6 @@ public class GamePanel extends JPanel {
 	class LevelEvent implements ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
-			System.out.println(dialog);
 			if (dialog == null) {
 				dialog = new LevelDialog(mf, "난이도 선택");
 				dialog.addWindowListener(new dialogEvent());
@@ -222,12 +220,6 @@ public class GamePanel extends JPanel {
 		super.paintComponent(g);
 	}
 
-	public void stopThread() {
-		th.interrupt();
-		JOptionPane.showMessageDialog(lifeMark[0], "Game Over", "Game Over", JOptionPane.INFORMATION_MESSAGE);
-		mf.change("BackToMain");
-	}
-
 	class StartEvent implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			Collections.shuffle(text);
@@ -238,7 +230,8 @@ public class GamePanel extends JPanel {
 					textLabel[i].setBounds(0, 0, 200, 30);
 					textLabel[i].setFont(textLabel[i].getFont().deriveFont(Font.BOLD));
 					textLabel[i].setFont(textLabel[i].getFont().deriveFont(15.0f));
-					textLabel[i].setLocation(i * 80, (int) ((Math.random() * 250) + 10));
+					textLabel[i].setLocation(i * 80 + 30, (int) ((Math.random() * 250) + 10));
+					textLabel[i].setVisible(false);
 					add(textLabel[i]); // 문제를 패널에 추가
 					cnt++;
 				}
@@ -265,6 +258,12 @@ public class GamePanel extends JPanel {
 			int key = e.getKeyChar();
 			String ta = typeLabel.getText();
 			if (key == KeyEvent.VK_ESCAPE) {
+				if (th.isAlive()) {// 스레드가 실행 중일 경우
+					th.interrupt(); // 스레드 강제 종료
+					JOptionPane.showMessageDialog(null, "수고하셨습니다.", "종료", JOptionPane.INFORMATION_MESSAGE); // dialog
+																											// 띄워줌
+				}
+
 				mf.change("BackToMain");
 			} else if (key == KeyEvent.VK_BACK_SPACE) { // 백스페이스 입력 시 실행
 
@@ -274,14 +273,16 @@ public class GamePanel extends JPanel {
 				}
 			} else if (key == KeyEvent.VK_ENTER) {
 				for (int i = 0; i < 13; i++) {
-					if (ta.equals(textLabel[i].getText())) {
-						cnt++;
-						if (cnt < text.size()) {
-							textLabel[i].setLocation(i * 80, (int) ((Math.random() * 250) + 10));
+					if (ta.equals(textLabel[i].getText())) { // 입력한 값과 textLabel에서 같은 게 있을 경우
+						cnt++; // cnt 증가
+						if (cnt < text.size()) { // cnt가
+							textLabel[i].setLocation(i * 80 + 30, (int) ((Math.random() * 250) + 10));
 							textLabel[i].setText(text.get(cnt));
 						} else {
-							textLabel[i].setVisible(false);
+							textLabel[i].setLocation(0, 0);
+							textLabel[i].setText("");
 						}
+						textLabel[i].setVisible(false);
 						revalidate();
 						repaint();
 						typeLabel.setText("");
@@ -312,10 +313,24 @@ public class GamePanel extends JPanel {
 				for (int j = 0; j < textLabel.length; j++) {
 					int x = textLabel[j].getX();
 					int y = textLabel[j].getY();
-					y += 10; // 좌표를 10씩 증가시킨다
-					textLabel[j].setLocation(x, y);
+					if (!textLabel[j].getText().equals("")) {
+						y += 10; // 좌표를 10씩 증가시킨다
+						textLabel[j].setLocation(x, y);
+					}
+					if (textLabel[j].getY() > 130)
+						textLabel[j].setVisible(true);
 					if (textLabel[j].isVisible() && textLabel[j].getY() > 650) {
+						cnt++; // cnt 증가
+						if (cnt < text.size()) { // cnt가
+							textLabel[j].setLocation(j * 80 + 30, (int) ((Math.random() * 250) + 10));
+							textLabel[j].setText(text.get(cnt));
+						} else {
+							textLabel[j].setLocation(0, 0);
+							textLabel[j].setText("");
+						}
 						textLabel[j].setVisible(false);
+						revalidate();
+						repaint();
 						life -= 1; // 라이프를 1감소시킨다
 						switch (life) { // 라이프 갯수 판별
 						case 2:
@@ -326,8 +341,10 @@ public class GamePanel extends JPanel {
 							break;
 						case 0:
 							lifeMark[0].setVisible(false);
-							stopThread();
-							break;
+							JOptionPane.showMessageDialog(lifeMark[0], "Game Over", "Game Over",
+									JOptionPane.INFORMATION_MESSAGE);
+							mf.change("BackToMain");
+							return;
 						}
 					}
 
@@ -339,8 +356,11 @@ public class GamePanel extends JPanel {
 
 	class BackToMainBtnEvent implements ActionListener { // 뒤로가기 버튼 이벤트
 		public void actionPerformed(ActionEvent e) {
-			if (th.isAlive())
+			if (th.isAlive()) {
 				th.interrupt();
+				JOptionPane.showMessageDialog(null, "수고하셨습니다.", "종료", JOptionPane.INFORMATION_MESSAGE); // dialog
+																										// 띄워줌
+			}
 			mf.change("BackToMain"); // MainFrame change 함수 사용하여 MainPanel 불러옴
 		}
 	}
