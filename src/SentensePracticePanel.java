@@ -209,6 +209,7 @@ public class SentensePracticePanel extends JPanel {
         this.addKeyListener(new TypeEvent()); // 패널 키 이벤트 추가
         this.addKeyListener(new BackToMainEvent()); // 패널 키 이벤트 추가 (우선순위 더 높음)
         setFocusable(true); // 포커스 설정 가능하게 설정
+        setFocusTraversalKeysEnabled(false);
         setSize(1200, 800);
         setVisible(true);
     }
