@@ -11,28 +11,20 @@ import javax.swing.*;
 
 public class GamePanel extends JPanel {
 	private MainFrame mf;
-	private int progress = 0; // ������
-	private int typo = 0; // ��Ÿ��
-	private int accuracy = 0; // ��Ȯ��
-	private JLabel progress_Per; // ����� Label
-	private JProgressBar progress_bar; // ����� Bar
-	private JProgressBar typo_bar; // ��Ÿ�� Bar
-	private JProgressBar accuracy_bar; // ��Ȯ�� Bar
-	private JLabel typo_Cnt; // ��Ÿ�� Label
-	private JLabel accuracy_Per; // ��Ȯ�� Label
-	private int total = 0; // �� ���� ��
-	private int index = 0; // ���� ���� ��
+	private int total = 0; // 총 문제 수
 	private final int max = 200;
-	private JTextField answer; // ����ڰ� �ܾ �Է��ϴ� â
+	private JLabel typeLabel; // 입력 Label
 	private java.util.List<String> tmp = new ArrayList<String>();
 	private java.util.List<String> text = new ArrayList<String>();
 	public static JLabel[] lifeMark = new JLabel[3];
 	public static JLabel[] textLabel = new JLabel[13];
-	private String fallingword = null;
 	ImageIcon lifeIcon = new ImageIcon("img/life.png");
-	Rain r = new Rain();
+	Runnable r = new Rain();
 	Thread th = new Thread(r);
-	public int life = 3; // �ʱ� ������ �� = 3
+	public int life = 3; // 초기 라이프 값 = 3
+	int levelValue = 1000;
+	LevelDialog dialog = null;
+	private int cnt = 0;
 
 	public GamePanel(MainFrame mf, String language) {
 		this.mf = mf;
@@ -41,7 +33,7 @@ public class GamePanel extends JPanel {
 		setLayout(null);
 		FileReader fin = null;
 		try {
-			switch (language) { // �� ���� ����
+			switch (language) { // 언어별 파일 지정
 			case "Java":
 				fin = new FileReader("txt/java/word.txt");
 				break;
@@ -54,11 +46,11 @@ public class GamePanel extends JPanel {
 			}
 			BufferedReader bufReader = new BufferedReader(fin);
 			String line = "";
-			while ((line = bufReader.readLine()) != null) { // ������ ���پ� ����
-				if (line.length() > 15)
-					continue;
-				tmp.add(line.trim()); // tmp�� �ѹ��徿 �߰�
-				total++; // �� ���� �� ����
+			while ((line = bufReader.readLine()) != null) { // 파일을 한줄씩 읽음
+				if (line.length() < 15) {
+					tmp.add(line.trim()); // tmp에 한문장씩 추가
+					total++; // 총 문제 수 증가
+				}
 			}
 			bufReader.close();
 		} catch (FileNotFoundException e) {
@@ -66,96 +58,165 @@ public class GamePanel extends JPanel {
 			System.out.println(e);
 		}
 
-		for (int i = 0; i < max; i++) { // 100 ���� ����
-			int rNum = (int) (Math.random() * total); // ���� �� �߿� ���� �� ����
-			if (text.contains(tmp.get(rNum))) { // �̹� �ִ� ������ ��� continue
+		for (int i = 0; i < max; i++) { // 100 문제 선정
+			int rNum = (int) (Math.random() * total); // 문장 수 중에 랜덤 값 지정
+			if (text.contains(tmp.get(rNum))) { // 이미 있는 문장일 경우 continue
 				i--;
 				continue;
 			}
-			text.add(tmp.get(rNum)); // ���ο� ������ ��� text�� �߰�
+			text.add(tmp.get(rNum)); // 새로운 문장일 경우 text에 추가
 		}
 
-		progress_bar = new JProgressBar(0, 100); // ����� Bar ���� �� ����
-		progress_bar.setSize(80, 10);
-		progress_bar.setLocation(95, 90);
-		progress_bar.setForeground(Color.BLACK);
-		progress_bar.setBorderPainted(false);
-		add(progress_bar);
+		typeLabel = new JLabel(); // 입력 Label 생성 및 설정
+		typeLabel.setSize(400, 30);
+		typeLabel.setLocation(500, 700);
+		typeLabel.setFont(typeLabel.getFont().deriveFont(15.0F));
+		typeLabel.setHorizontalAlignment(JLabel.CENTER);
+		add(typeLabel);
 
-		progress_Per = new JLabel(Integer.toString(progress) + "%"); // ����� Label ���� �� ����
-		progress_Per.setSize(100, 30);
-		progress_Per.setLocation(180, 80);
-		add(progress_Per);
-
-		typo_bar = new JProgressBar(0, 100); // ��Ÿ�� Bar ���� �� ����
-		typo_bar.setSize(80, 10);
-		typo_bar.setLocation(265, 90);
-		typo_bar.setForeground(Color.BLACK);
-		typo_bar.setBorderPainted(false);
-		add(typo_bar);
-
-		typo_Cnt = new JLabel(Integer.toString(typo)); // ��Ÿ�� Label ���� �� ����
-		typo_Cnt.setSize(100, 30);
-		typo_Cnt.setLocation(355, 80);
-		add(typo_Cnt);
-
-		accuracy_bar = new JProgressBar(0, 100); // ��Ȯ�� Bar ���� �� ����
-		accuracy_bar.setSize(80, 10);
-		accuracy_bar.setLocation(435, 90);
-		accuracy_bar.setForeground(Color.BLACK);
-		accuracy_bar.setBorderPainted(false);
-		add(accuracy_bar);
-
-		accuracy_Per = new JLabel(Integer.toString(accuracy) + "%"); // ��Ȯ�� Label ���� �� ����
-		accuracy_Per.setSize(100, 30);
-		accuracy_Per.setLocation(525, 80);
-		add(accuracy_Per);
-
-		answer = new JTextField(15);
-		answer.setSize(200, 30);
-		answer.setLocation(500, 700);
-		answer.addActionListener(new AnswerEvent());
-		add(answer);
-
-		JButton btn_gamestart = new JButton("Start");
+		ImageIcon icon = new ImageIcon("img/g_start_btn.png");
+		JButton btn_gamestart = new JButton(icon);
 		btn_gamestart.setSize(100, 50);
 		btn_gamestart.setLocation(750, 80);
+		btn_gamestart.setBorderPainted(false);
+		btn_gamestart.setContentAreaFilled(false);
+		btn_gamestart.setFocusPainted(false);
+		btn_gamestart.setFocusable(false);
 		btn_gamestart.addActionListener(new StartEvent());
 		add(btn_gamestart);
 
-		JButton exitBtn = new JButton(new ImageIcon("img/w_exit_btn.png")); // ���� ��ư ���� �� ����
-		exitBtn.setPressedIcon(new ImageIcon("img/w_exit_pbtn.png"));
+		ImageIcon icon2 = new ImageIcon("img/g_level_btn.png");
+		JButton btn_level = new JButton(icon2);
+		btn_level.setSize(100, 50);
+		btn_level.setLocation(900, 80);
+		btn_level.setBorderPainted(false);
+		btn_level.setContentAreaFilled(false);
+		btn_level.setFocusPainted(false);
+		btn_level.setFocusable(false);
+		btn_level.addActionListener(new LevelEvent());
+		add(btn_level);
+
+		JButton exitBtn = new JButton(new ImageIcon("img/g_exit_btn.png")); // 종료 버튼 생성 및 설정
+		exitBtn.setPressedIcon(new ImageIcon("img/g_exit_pbtn.png"));
 		exitBtn.setSize(25, 25);
 		exitBtn.setLocation(1160, 5);
 		exitBtn.setBorderPainted(false);
 		exitBtn.setContentAreaFilled(false);
 		exitBtn.setFocusPainted(false);
-		exitBtn.addActionListener(new ExitPro()); // ��ư �̺�Ʈ �߰�
+		exitBtn.addActionListener(new ExitPro()); // 버튼 이벤트 추가
 		add(exitBtn);
 
-		JButton miniBtn = new JButton(new ImageIcon("img/w_mini_btn.png")); // �ּ�ȭ ��ư ���� �� ����
-		miniBtn.setPressedIcon(new ImageIcon("img/w_mini_pbtn.png"));
+		JButton miniBtn = new JButton(new ImageIcon("img/g_mini_btn.png")); // 최소화 버튼 생성 및 설정
+		miniBtn.setPressedIcon(new ImageIcon("img/g_mini_pbtn.png"));
 		miniBtn.setSize(25, 25);
 		miniBtn.setLocation(1120, 5);
 		miniBtn.setBorderPainted(false);
 		miniBtn.setContentAreaFilled(false);
 		miniBtn.setFocusPainted(false);
-		miniBtn.addActionListener(new MinimizneWindows()); // ��ư �̺�Ʈ �߰�
+		miniBtn.addActionListener(new MinimizneWindows()); // 버튼 이벤트 추가
 		add(miniBtn);
 
-		JButton backBtn = new JButton(new ImageIcon("img/w_back_btn.png")); // �ڷΰ��� ��ư ���� �� ����
-		backBtn.setPressedIcon(new ImageIcon("img/w_back_pbtn.png"));
+		JButton backBtn = new JButton(new ImageIcon("img/g_back_btn.png")); // 뒤로가기 버튼 생성 및 설정
+		backBtn.setPressedIcon(new ImageIcon("img/g_back_pbtn.png"));
 		backBtn.setSize(50, 50);
 		backBtn.setLocation(30, 700);
 		backBtn.setBorderPainted(false);
 		backBtn.setContentAreaFilled(false);
 		backBtn.setFocusPainted(false);
-		backBtn.addActionListener(new BackToMainBtnEvent()); // ��ư �̺�Ʈ �߰�
+		backBtn.addActionListener(new BackToMainBtnEvent()); // 버튼 이벤트 추가
 		add(backBtn);
+		this.addKeyListener(new TypeEvent());
+		this.setFocusable(true);
+		this.requestFocusInWindow();
 	}
 
-	public void paintComponent(Graphics g) { // BackGround ������ ���� �׸��� �Լ�
-		ImageIcon main_bg = new ImageIcon("img/word_back.png");
+	class LevelDialog extends JDialog {
+		ButtonGroup group = new ButtonGroup();
+		JRadioButton levelButton[] = new JRadioButton[5];
+		String level[] = { "level 1", "level 2", "level 3", "level 4", "level 5" };
+		JButton okButton = new JButton("확인");
+
+		public LevelDialog(JFrame gamePanel, String title) {
+			super(gamePanel, title, true);
+			setLayout(new FlowLayout());
+			setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			setSize(400, 300);
+			setLocation(2500, 500);
+			for (int i = 0; i < levelButton.length; i++) {
+				levelButton[i] = new JRadioButton(level[i]);
+				group.add(levelButton[i]);
+				this.add(levelButton[i]);
+			}
+			levelButton[0].setSelected(true);
+			this.add(okButton);
+			okButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (levelButton[0].isSelected()) {
+						levelValue = 1000;
+					}
+					if (levelButton[1].isSelected()) {
+						levelValue = 800;
+					}
+					if (levelButton[2].isSelected()) {
+						levelValue = 600;
+					}
+					if (levelButton[3].isSelected()) {
+						levelValue = 400;
+					}
+					if (levelButton[4].isSelected()) {
+						levelValue = 200;
+					}
+					LevelDialog.this.dispose();
+					if (th.isAlive()) {
+						th.interrupt();
+						th = new Thread(r);
+					}
+				}
+			});
+		}
+	}
+
+	class LevelEvent implements ActionListener {
+
+		public void actionPerformed(ActionEvent e) {
+			System.out.println(dialog);
+			if (dialog == null) {
+				dialog = new LevelDialog(mf, "난이도 선택");
+				dialog.addWindowListener(new dialogEvent());
+				dialog.setVisible(true);
+			}
+
+		}
+	}
+
+	class dialogEvent extends WindowAdapter {
+		public void windowClosed(WindowEvent e) {
+			dialog = null;
+		}
+
+		public void windowOpened(WindowEvent e) {
+			switch (levelValue) {
+			case 1000:
+				dialog.levelButton[0].setSelected(true);
+				break;
+			case 800:
+				dialog.levelButton[1].setSelected(true);
+				break;
+			case 600:
+				dialog.levelButton[2].setSelected(true);
+				break;
+			case 400:
+				dialog.levelButton[3].setSelected(true);
+				break;
+			case 200:
+				dialog.levelButton[4].setSelected(true);
+				break;
+			}
+		}
+	}
+
+	public void paintComponent(Graphics g) { // BackGround 설정을 위한 그리기 함수
+		ImageIcon main_bg = new ImageIcon("img/game_back.png");
 		g.drawImage(main_bg.getImage(), 0, 0, null);
 		setOpaque(false);
 		super.paintComponent(g);
@@ -167,101 +228,132 @@ public class GamePanel extends JPanel {
 		mf.change("BackToMain");
 	}
 
-	class AnswerEvent implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			String ta = answer.getText();
-			for (int i = 0; i < 13; i++) {
-				if (ta.equals(textLabel[i].getText())) {
-					textLabel[i].setVisible(false);
-					revalidate();
-					repaint();
-					answer.setText("");
-				} else {
-					answer.setText("");
-				}
-			}
-		}
-	}
-
-	class Rain implements Runnable {
-
-		public void run() {
-			while (true) {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					System.out.println("����!!!!!");
-					return;
-				}
-				for (int j = 0; j < textLabel.length; j++) {
-					int x = textLabel[j].getX();
-					int y = textLabel[j].getY();
-					y += 10; // ��ǥ�� 10�� ������Ų��
-					textLabel[j].setLocation(x, y);
-					if (textLabel[j].isVisible() && textLabel[j].getY() > 650) {
-						textLabel[j].setVisible(false);
-						life -= 1; // �������� 1���ҽ�Ų��
-
-					}
-
-				}
-				switch (life) { // ������ ���� �Ǻ�
-				case 2:
-					lifeMark[2].setVisible(false);
-					break;
-				case 1:
-					lifeMark[1].setVisible(false);
-					break;
-				case 0:
-					lifeMark[0].setVisible(false);
-					stopThread();
-					break;
-				}
-			}
-		}
-	}
-
 	class StartEvent implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			Collections.shuffle(text);
 			if (th.getState() == Thread.State.NEW) {
+				life = 3;
 				for (int i = 0; i < textLabel.length; i++) {
-					textLabel[i] = new JLabel(text.get(i));
+					textLabel[i] = new JLabel(text.get(cnt));
 					textLabel[i].setBounds(0, 0, 200, 30);
-					textLabel[i].setFont(new Font("Arial", Font.BOLD, 15));
-					textLabel[i].setLocation(i * 70, (int) (Math.random() * 250) + 10);
-					add(textLabel[i]); // ������ �гο� �߰�
+					textLabel[i].setFont(textLabel[i].getFont().deriveFont(Font.BOLD));
+					textLabel[i].setFont(textLabel[i].getFont().deriveFont(15.0f));
+					textLabel[i].setLocation(i * 80, (int) ((Math.random() * 250) + 10));
+					add(textLabel[i]); // 문제를 패널에 추가
+					cnt++;
 				}
 
-				for (int i = 0; i < lifeMark.length; i++) { // ������ �߰�
+				for (int i = 0; i < life; i++) { // 라이프 추가
 					lifeMark[i] = new JLabel(lifeIcon);
 					lifeMark[i].setOpaque(false);
 					lifeMark[i].setBounds(500 + (i * 80), 750, 50, 50);
 					add(lifeMark[i]);
 					lifeMark[i].setBorder(javax.swing.BorderFactory.createEmptyBorder());
 					lifeMark[i].setVisible(true);
+
 				}
-				th.start();
-				answer.requestFocus();
+				if (!th.isAlive()) {
+					th.start();
+				}
+
 			}
 		}
 	}
 
-	class BackToMainBtnEvent implements ActionListener { // �ڷΰ��� ��ư �̺�Ʈ
-		public void actionPerformed(ActionEvent e) {
-			mf.change("BackToMain"); // MainFrame change �Լ� ����Ͽ� MainPanel �ҷ���
+	class TypeEvent extends KeyAdapter {
+		public void keyTyped(KeyEvent e) {
+			int key = e.getKeyChar();
+			String ta = typeLabel.getText();
+			if (key == KeyEvent.VK_ESCAPE) {
+				mf.change("BackToMain");
+			} else if (key == KeyEvent.VK_BACK_SPACE) { // 백스페이스 입력 시 실행
+
+				if (typeLabel.getText().length() > 0) { // 입력된 텍스트가 있을 경우
+					typeLabel.setText(typeLabel.getText().substring(0, typeLabel.getText().length() - 1)); // 입력창에 입력값 중
+																											// 마지막 문자 삭제
+				}
+			} else if (key == KeyEvent.VK_ENTER) {
+				for (int i = 0; i < 13; i++) {
+					if (ta.equals(textLabel[i].getText())) {
+						cnt++;
+						if (cnt < text.size()) {
+							textLabel[i].setLocation(i * 80, (int) ((Math.random() * 250) + 10));
+							textLabel[i].setText(text.get(cnt));
+						} else {
+							textLabel[i].setVisible(false);
+						}
+						revalidate();
+						repaint();
+						typeLabel.setText("");
+					} else {
+						typeLabel.setText("");
+					}
+				}
+
+			} else {
+				typeLabel.setText(typeLabel.getText() + e.getKeyChar());
+			}
+		}
+
+	}
+
+	public class Rain implements Runnable {
+
+		public void run() {
+			while (true) {
+				try {
+					Thread.sleep(levelValue);
+				} catch (InterruptedException e) {
+					for (int j = 0; j < textLabel.length; j++) {
+						textLabel[j].setVisible(false);
+					}
+					return;
+				}
+				for (int j = 0; j < textLabel.length; j++) {
+					int x = textLabel[j].getX();
+					int y = textLabel[j].getY();
+					y += 10; // 좌표를 10씩 증가시킨다
+					textLabel[j].setLocation(x, y);
+					if (textLabel[j].isVisible() && textLabel[j].getY() > 650) {
+						textLabel[j].setVisible(false);
+						life -= 1; // 라이프를 1감소시킨다
+						switch (life) { // 라이프 갯수 판별
+						case 2:
+							lifeMark[2].setVisible(false);
+							break;
+						case 1:
+							lifeMark[1].setVisible(false);
+							break;
+						case 0:
+							lifeMark[0].setVisible(false);
+							stopThread();
+							break;
+						}
+					}
+
+				}
+
+			}
 		}
 	}
 
-	class MinimizneWindows implements ActionListener { // �ּ�ȭ ��ư �̺�Ʈ
+	class BackToMainBtnEvent implements ActionListener { // 뒤로가기 버튼 이벤트
 		public void actionPerformed(ActionEvent e) {
-			mf.setState(1); // ���� Frame�� �ּ�ȭ��Ŵ
+			if (th.isAlive())
+				th.interrupt();
+			mf.change("BackToMain"); // MainFrame change 함수 사용하여 MainPanel 불러옴
 		}
 	}
 
-	class ExitPro implements ActionListener { // ���� ��ư �̺�Ʈ
+	class MinimizneWindows implements ActionListener { // 최소화 버튼 이벤트
 		public void actionPerformed(ActionEvent e) {
-			mf.ExitP(); // MainFrame�� �ִ� ExitP �Լ��� ����Ͽ� ���α׷� �����Ŵ
+			mf.setState(1); // 현재 Frame을 최소화시킴
+		}
+	}
+
+	class ExitPro implements ActionListener { // 종료 버튼 이벤트
+		public void actionPerformed(ActionEvent e) {
+			mf.ExitP(); // MainFrame에 있는 ExitP 함수를 사용하여 프로그램 종료시킴
 		}
 	}
 }
