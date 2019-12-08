@@ -1,18 +1,13 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-
+import java.io.*;
+import java.util.*;
 import javax.swing.*;
 
 public class GamePanel extends JPanel {
 	private MainFrame mf;
-	private int total = 0; // 총 문제 수
-	private final int max = 200;
+	private int total = 0; // 총 단어 수
+	private final int max = 20; // 총 문제 수
 	private JLabel typeLabel; // 입력 Label
 	private java.util.List<String> tmp = new ArrayList<String>();
 	private java.util.List<String> text = new ArrayList<String>();
@@ -24,7 +19,8 @@ public class GamePanel extends JPanel {
 	public int life = 3; // 초기 라이프 값 = 3
 	int levelValue = 1000;
 	LevelDialog dialog = null;
-	private int cnt = 0;
+	private int cnt = 0; // 출제 문제 갯수
+	private int empty = 0; // 빈 문장 갯수
 
 	public GamePanel(MainFrame mf, String language) {
 		this.mf = mf;
@@ -58,7 +54,7 @@ public class GamePanel extends JPanel {
 			System.out.println(e);
 		}
 
-		for (int i = 0; i < max; i++) { // 100 문제 선정
+		for (int i = 0; i < max; i++) { // 30 문제 선정
 			int rNum = (int) (Math.random() * total); // 문장 수 중에 랜덤 값 지정
 			if (text.contains(tmp.get(rNum))) { // 이미 있는 문장일 경우 continue
 				i--;
@@ -74,7 +70,7 @@ public class GamePanel extends JPanel {
 		typeLabel.setHorizontalAlignment(JLabel.CENTER);
 		add(typeLabel);
 
-		ImageIcon icon = new ImageIcon("img/g_start_btn.png");
+		ImageIcon icon = new ImageIcon("img/g_start_btn.png"); // 게임 시작 버튼 생성 및 설정
 		JButton btn_gamestart = new JButton(icon);
 		btn_gamestart.setSize(100, 50);
 		btn_gamestart.setLocation(750, 80);
@@ -82,10 +78,10 @@ public class GamePanel extends JPanel {
 		btn_gamestart.setContentAreaFilled(false);
 		btn_gamestart.setFocusPainted(false);
 		btn_gamestart.setFocusable(false);
-		btn_gamestart.addActionListener(new StartEvent());
+		btn_gamestart.addActionListener(new StartEvent()); // 버튼 이벤트 추가
 		add(btn_gamestart);
 
-		ImageIcon icon2 = new ImageIcon("img/g_level_btn.png");
+		ImageIcon icon2 = new ImageIcon("img/g_level_btn.png"); // 난이도 설정 버튼 생성 및 설정
 		JButton btn_level = new JButton(icon2);
 		btn_level.setSize(100, 50);
 		btn_level.setLocation(900, 80);
@@ -93,7 +89,7 @@ public class GamePanel extends JPanel {
 		btn_level.setContentAreaFilled(false);
 		btn_level.setFocusPainted(false);
 		btn_level.setFocusable(false);
-		btn_level.addActionListener(new LevelEvent());
+		btn_level.addActionListener(new LevelEvent()); // 버튼 이벤트 추가
 		add(btn_level);
 
 		JButton exitBtn = new JButton(new ImageIcon("img/g_exit_btn.png")); // 종료 버튼 생성 및 설정
@@ -125,14 +121,14 @@ public class GamePanel extends JPanel {
 		backBtn.setFocusPainted(false);
 		backBtn.addActionListener(new BackToMainBtnEvent()); // 버튼 이벤트 추가
 		add(backBtn);
-		this.addKeyListener(new TypeEvent());
+		this.addKeyListener(new TypeEvent()); // 패널에 키 이벤트 추가
 		this.setFocusable(true);
 		this.requestFocusInWindow();
 	}
 
-	class LevelDialog extends JDialog {
-		ButtonGroup group = new ButtonGroup();
-		JRadioButton levelButton[] = new JRadioButton[5];
+	class LevelDialog extends JDialog { // 난이도 설정 버튼 클래스
+		ButtonGroup group = new ButtonGroup(); /// 버튼 그룹 객체 생성
+		JRadioButton levelButton[] = new JRadioButton[5]; // JRadioButton 배열 생성
 		String level[] = { "level 1", "level 2", "level 3", "level 4", "level 5" };
 		JButton okButton = new JButton("확인");
 
@@ -141,16 +137,16 @@ public class GamePanel extends JPanel {
 			setLayout(new FlowLayout());
 			setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			setSize(400, 300);
-			for (int i = 0; i < levelButton.length; i++) {
+			for (int i = 0; i < levelButton.length; i++) { // 레벨 버튼 생성 및 추가
 				levelButton[i] = new JRadioButton(level[i]);
 				group.add(levelButton[i]);
 				this.add(levelButton[i]);
 			}
-			levelButton[0].setSelected(true);
+			levelButton[0].setSelected(true); // 난이도 1 체크
 			this.add(okButton);
 			okButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					if (levelButton[0].isSelected()) {
+				public void actionPerformed(ActionEvent e) { // ok버튼 이벤트 추가
+					if (levelButton[0].isSelected()) { // levelButton 선택 값에 따라서 levelValue 설정
 						levelValue = 1000;
 					}
 					if (levelButton[1].isSelected()) {
@@ -165,35 +161,35 @@ public class GamePanel extends JPanel {
 					if (levelButton[4].isSelected()) {
 						levelValue = 200;
 					}
-					LevelDialog.this.dispose();
-					if (th.isAlive()) {
-						th.interrupt();
-						th = new Thread(r);
+					LevelDialog.this.dispose(); // 다이얼로그 제거
+					if (th.isAlive()) { // th가 살아있을 경우
+						th.interrupt(); // interrupt 시킴
+						th = new Thread(r); // 새로운 스레드 생성
 					}
 				}
 			});
 		}
 	}
 
-	class LevelEvent implements ActionListener {
+	class LevelEvent implements ActionListener { // 난이도 설정 버튼 이벤트
 
 		public void actionPerformed(ActionEvent e) {
-			if (dialog == null) {
-				dialog = new LevelDialog(mf, "난이도 선택");
-				dialog.addWindowListener(new dialogEvent());
+			if (dialog == null) { // dialog가 생성되있지 않다면
+				dialog = new LevelDialog(mf, "난이도 선택"); // dialog 생성
+				dialog.addWindowListener(new dialogEvent()); // dialog에 windowListener 추가
 				dialog.setVisible(true);
 			}
 
 		}
 	}
 
-	class dialogEvent extends WindowAdapter {
-		public void windowClosed(WindowEvent e) {
-			dialog = null;
+	class dialogEvent extends WindowAdapter { // 다이얼로그 WindowListener 이벤트
+		public void windowClosed(WindowEvent e) { // 다이얼로그가 닫힐 때
+			dialog = null; // dialog= null 처리
 		}
 
-		public void windowOpened(WindowEvent e) {
-			switch (levelValue) {
+		public void windowOpened(WindowEvent e) { // 다이얼로그가 열릴 때
+			switch (levelValue) { // levelValue에 따라서 라디오 버튼 선택
 			case 1000:
 				dialog.levelButton[0].setSelected(true);
 				break;
@@ -220,12 +216,13 @@ public class GamePanel extends JPanel {
 		super.paintComponent(g);
 	}
 
-	class StartEvent implements ActionListener {
+	class StartEvent implements ActionListener { // 시작 버튼 이벤트
 		public void actionPerformed(ActionEvent e) {
-			Collections.shuffle(text);
-			if (th.getState() == Thread.State.NEW) {
-				life = 3;
-				for (int i = 0; i < textLabel.length; i++) {
+			Collections.shuffle(text); // text 컬렉션을 섞어줌
+			if (th.getState() == Thread.State.NEW) { // 스레드가 실행 전이라면
+				cnt = 0;
+				life = 3; // 라이프 3개로 초기화
+				for (int i = 0; i < textLabel.length; i++) { // 문제 Label 생성 및 추가
 					textLabel[i] = new JLabel(text.get(cnt));
 					textLabel[i].setBounds(0, 0, 200, 30);
 					textLabel[i].setFont(textLabel[i].getFont().deriveFont(Font.BOLD));
@@ -245,8 +242,8 @@ public class GamePanel extends JPanel {
 					lifeMark[i].setVisible(true);
 
 				}
-				if (!th.isAlive()) {
-					th.start();
+				if (!th.isAlive()) { // 스레드가 작동되지 않을 때만
+					th.start(); // 스레드 실행
 				}
 
 			}
@@ -274,12 +271,12 @@ public class GamePanel extends JPanel {
 			} else if (key == KeyEvent.VK_ENTER) {
 				for (int i = 0; i < 13; i++) {
 					if (ta.equals(textLabel[i].getText())) { // 입력한 값과 textLabel에서 같은 게 있을 경우
-						cnt++; // cnt 증가
-						if (cnt < text.size()) { // cnt가
-							textLabel[i].setLocation(i * 80 + 30, (int) ((Math.random() * 250) + 10));
+						cnt++;
+						if (cnt < text.size()) { // 남은 문제 수가 있을 경우
+							textLabel[i].setLocation(i * 80 + 30, (int) ((Math.random() * 250) + 10)); // 문제 생성
 							textLabel[i].setText(text.get(cnt));
-						} else {
-							textLabel[i].setLocation(0, 0);
+						} else { // 남은 문제가 없을 경우
+							textLabel[i].setLocation(0, 0); // 문제 위치와 텍스트 초기화
 							textLabel[i].setText("");
 						}
 						textLabel[i].setVisible(false);
@@ -302,13 +299,16 @@ public class GamePanel extends JPanel {
 
 		public void run() {
 			while (true) {
+				empty = 0;
 				try {
-					Thread.sleep(levelValue);
-				} catch (InterruptedException e) {
-					for (int j = 0; j < textLabel.length; j++) {
+					Thread.sleep(levelValue); // 난이도마다 sleep 시간 다르게 설정
+				} catch (InterruptedException e) { // 스레드가 Interrupt 됐을 경우
+					for (int j = 0; j < textLabel.length; j++) { // 문제 및 라이프 Label들 안보이게 처리
 						textLabel[j].setVisible(false);
+						if (j < 3)
+							lifeMark[j].setVisible(false);
 					}
-					return;
+					return; // 스레드 종료
 				}
 				for (int j = 0; j < textLabel.length; j++) {
 					int x = textLabel[j].getX();
@@ -316,16 +316,28 @@ public class GamePanel extends JPanel {
 					if (!textLabel[j].getText().equals("")) {
 						y += 10; // 좌표를 10씩 증가시킨다
 						textLabel[j].setLocation(x, y);
+					} else { // Label이 공백일 경우
+						if (textLabel[j].getX() == 0 && textLabel[j].getY() == 0) { // Label의 위치가 (0,0)일 경우
+							empty++; // 빈 Label 갯수 증가
+							if (empty == max) { // 문제 끝났을 경우
+								JOptionPane.showMessageDialog(null, "수고하셨습니다.", "종료", JOptionPane.INFORMATION_MESSAGE); // dialog
+								// 띄워줌
+								mf.change("BackToMain"); // MainFrame change 함수 사용하여 MainPanel 불러옴
+								return;
+							}
+
+						}
+
 					}
-					if (textLabel[j].getY() > 130)
-						textLabel[j].setVisible(true);
-					if (textLabel[j].isVisible() && textLabel[j].getY() > 650) {
-						cnt++; // cnt 증가
-						if (cnt < text.size()) { // cnt가
-							textLabel[j].setLocation(j * 80 + 30, (int) ((Math.random() * 250) + 10));
+					if (textLabel[j].getY() > 130) // 문제 Label들의 y좌표가 130 이상일 때
+						textLabel[j].setVisible(true); // 문제들이 보이게 표시
+					if (textLabel[j].isVisible() && textLabel[j].getY() > 650) { // 만약 문제들이 보이고 y좌표가 650을 넘어갈 경우
+						cnt++;
+						if (cnt < text.size()) { // 남은 문제가 있을 경우
+							textLabel[j].setLocation(j * 80 + 30, (int) ((Math.random() * 250) + 10)); // 문제 생성
 							textLabel[j].setText(text.get(cnt));
-						} else {
-							textLabel[j].setLocation(0, 0);
+						} else { // 남은 문제가 없을 경우
+							textLabel[j].setLocation(0, 0); // 문제 위치와 텍스트 초기화
 							textLabel[j].setText("");
 						}
 						textLabel[j].setVisible(false);
@@ -339,12 +351,12 @@ public class GamePanel extends JPanel {
 						case 1:
 							lifeMark[1].setVisible(false);
 							break;
-						case 0:
+						case 0: // 라이프가 0일 경우
 							lifeMark[0].setVisible(false);
 							JOptionPane.showMessageDialog(lifeMark[0], "Game Over", "Game Over",
 									JOptionPane.INFORMATION_MESSAGE);
 							mf.change("BackToMain");
-							return;
+							return; // 스레드 종료
 						}
 					}
 
