@@ -1,8 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import java.util.*;
-import java.io.*;
 
 class MainPanel extends JPanel {
     private MainFrame mf;
@@ -94,9 +92,7 @@ class MainPanel extends JPanel {
 
     class MainToSouBtnEvent implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            String language = mf.getLanguage();
-            if (showSelectTextFileDialog(language) == JOptionPane.OK_OPTION)
-                mf.change("MainToSou");
+            mf.change("MainToSou"); // MainFrame에 있는 change 함수를 사용하여 SourcePractice Panel로 이동
         }
     }
 
@@ -104,37 +100,6 @@ class MainPanel extends JPanel {
         public void actionPerformed(ActionEvent e) {
             mf.change("MainToGame"); // MainFrame에 있는 change 함수를 사용하여 SentensePractice Panel로 이동
         }
-    }
-
-    private int showSelectTextFileDialog(String language) { // 프로필 변경 버튼 눌렀을 시 실행할 Custom Dialog
-        ArrayList<String> list = new ArrayList<String>();
-        File files = new File("txt/java/sourceFile"); // 기본 파일을 java 파일로 설정
-        switch (language) { // 언어별 파일 변경
-        case "Java":
-            files = new File("txt/java/sourceFile");
-            break;
-        case "C":
-            files = new File("txt/c/sourceFile");
-            break;
-        case "Python":
-            files = new File("txt/python/sourceFile");
-            break;
-        }
-
-        File[] subFiles = files.listFiles(); // 폴더 내 파일 리스트 불러옴
-        for (int i = 0; i < subFiles.length; i++) {
-            list.add(subFiles[i].getName());
-        }
-        JLabel la1 = new JLabel("연습하고 싶은 소스를 선택하여 주세요");
-        // JScrollPane sp =
-        JList<Object> li1 = new JList<>(list.toArray());
-
-        Object[] inputFields = { la1, li1 }; // Dialog에 넣기 위한 오브젝트들 추가
-        int option = JOptionPane.showConfirmDialog(this, inputFields, "소스 선택", JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.INFORMATION_MESSAGE);
-        if (option == JOptionPane.OK_OPTION) { // OK버튼 눌렀을 경우
-        }
-        return option; // option 값 리턴
     }
 
     class MinimizneWindows implements ActionListener { // 최소화 버튼 이벤트
