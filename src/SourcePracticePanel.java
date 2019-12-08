@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
+import javax.swing.filechooser.*;
 import java.io.*;
 
 public class SourcePracticePanel extends JPanel {
@@ -20,7 +21,6 @@ public class SourcePracticePanel extends JPanel {
     private JProgressBar goalType_bar; // 목표 타수 Progress Bar
     private JProgressBar highestType_bar; // 최고타수 Progress Bar
     private JLabel questionLabel[]; // 문제 Label 배열
-    // private JLabel numberLabel[]; // 문제 코드 줄 번호 Label
     private JLabel typeLabel; // 입력창
     private int inaccuracy_cnt = 0; // 오타수
     private int total = 0; // 총 문제 수
@@ -28,194 +28,325 @@ public class SourcePracticePanel extends JPanel {
     private char ch;
     private int back; // 백스페이스 입력 수
     private int n;
+    private int file_Index = -1;
     private ArrayList<String> tmp = new ArrayList<String>(); // 파일에서 문장을 입력받는 ArrayList
     private ArrayList<String> text = new ArrayList<String>(); // 수정된 문장을 입력 받는 ArrayList
+    private ArrayList<String> saveTmp = new ArrayList<String>();
     TypeRunnable runnable = new TypeRunnable(); // 현재타수 계산 Runnable
     Thread th = new Thread(runnable); // 스레드에 현재타수 계산 Runnable 추가
     private long beforeTime; // 스레드 시작한 시간 저장 변수
-    private boolean tabStatus = false;
     private String language;
+    private int tab_Cnt = 0;
+    private ArrayList<String> list;
+    private showSelectTextFileDialog dialog = null;
 
-    public SourcePracticePanel(MainFrame mf, String language) {
-        this.mf = mf;
-        this.language = language;
-        setLayout(null);
-        File files = new File("txt/java/sourceFile"); // 기본 파일을 java 파일로 설정
+    public void AddSave() {
+        String fne = "";
         switch (language) { // 언어별 파일 변경
         case "Java":
-            files = new File("txt/java/sourceFile");
+            fne = "java";
             break;
         case "C":
-            files = new File("txt/c/sourceFile");
+            fne = "c";
             break;
         case "Python":
-            files = new File("txt/python/sourceFile");
+            fne = "py";
             break;
         }
-        File[] subFiles = files.listFiles(); // 폴더 내 파일 리스트 불러옴
+        JFileChooser chooser = new JFileChooser(); // 객체 생성
+        chooser.setAcceptAllFileFilterUsed(false);
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("." + fne, fne);
+        chooser.setFileFilter(filter);
 
-        int ran = (int) (Math.random() * subFiles.length); // 파일 리스트 수 중 랜덤 수를 정함
-        File f = subFiles[ran]; // 랜덤 파일 선정
-        FileReader fin = null;
+        int open = chooser.showOpenDialog(this); // 열기창 정의
+        if (open != JFileChooser.APPROVE_OPTION) {
+            JOptionPane.showMessageDialog(null, "경로를 선택하지않았습니다.", "경고", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        File openFile = chooser.getSelectedFile(); // 파일을 가져옴
+        String saveName = chooser.getSelectedFile().getName(); // 저장할 폴더의 경로
         try {
+
+            FileInputStream fis = new FileInputStream(openFile);
+            FileOutputStream fos = new FileOutputStream("txt/" + language + "/sourceFile/" + saveName);
+            int i = 0;
+            byte[] buffer = new byte[1024];
+
+            while ((i = fis.read(buffer, 0, 1024)) != -1) { // 파일 읽은 개수만큼 출력
+                fos.write(buffer, 0, i);
+            }
+
+            fis.close();
+            fos.close();
+
+            JOptionPane.showMessageDialog(this, "저장이 완료되었습니다.", "System", JOptionPane.INFORMATION_MESSAGE);
+            list.add(saveName);
+        } catch (Exception ex) {
+        }
+    }
+
+    public void SourceEdit(File f) {
+        try {
+            FileReader fin = null;
             fin = new FileReader(f);
             BufferedReader bufReader = new BufferedReader(fin);
             String line = "";
             while ((line = bufReader.readLine()) != null) { // 파일을 한줄씩 읽음
                 tmp.add(line);
-                total++; // 총 문제 수 증가
             }
             int size = tmp.size();
-            for (int i = 0; i < size; i++) {
-                if (i != size && tmp.get(i + 1).trim().length() == 1 && tmp.get(i + 1).contains("{") == true) {// tmp(i+1)에
-                                                                                                               // 글자수가
-                                                                                                               // 1자이고,{
-                                                                                                               // 가 포함
-                                                                                                               // 되있을 경우
+            for (int i = 0; i < size - 1; i++) {
+                if (tmp.get(i + 1).trim().length() == 1 && tmp.get(i + 1).contains("{") == true) {// tmp(i+1)에
+                                                                                                  // 글자수가
+                                                                                                  // 1자이고,{
+                                                                                                  // 가 포함
+                                                                                                  // 되있을 경우
                     tmp.set(i, tmp.get(i).concat("{")); // 현재 문장의 끝에 { 를 포함시킴
                     tmp.set(i + 1, tmp.get(i + 1).replace("{", "")); // tmp(i+1)의 { 를 공백으로 수정
                 }
                 if (tmp.get(i).trim().equals(""))
                     continue; // 빈 문장일 경우 continue
-                // tmp.set(i, tmp.get(i).replace(" ","ˇ"));
-                tmp.set(i, tmp.get(i).replace("\t", "^^")); // 문장에 tab이 있을경우 "^^" 으로 대체
-                size--;
+                tmp.set(i, tmp.get(i).replace("    ", "^^")); // 문장에 tab이 있을경우 "^^" 으로 대체
                 text.add(tmp.get(i)); // text에 문장 추가
             }
+            text.add(tmp.get(size - 1));
             bufReader.close();
+            total = text.size();
         } catch (FileNotFoundException e) {
         } catch (IOException e) {
             System.out.println("" + e);
         }
+    }
 
-        progress_bar = new JProgressBar(0, 100); // 진행률 bar 생성 및 설정
-        progress_bar.setSize(80, 10);
-        progress_bar.setLocation(95, 90);
-        progress_bar.setForeground(Color.BLACK);
-        progress_bar.setBorderPainted(false);
-        add(progress_bar);
+    class showSelectTextFileDialog extends JDialog { // 프로필 변경 버튼 눌렀을 시 실행할 Custom Dialog
+        JScrollPane p;
 
-        progress_Per = new JLabel(Integer.toString(progress) + "%"); // 진행률 Label 생성 및 설정
-        progress_Per.setSize(100, 30);
-        progress_Per.setLocation(185, 80);
-        add(progress_Per);
+        public showSelectTextFileDialog(String langauge) {
+            super(mf, "소스 선택", true);
+            setLayout(null);
+            setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+            File files = new File("txt/java/sourceFile"); // 기본 파일을 java 파일로 설정
+            switch (language) { // 언어별 파일 변경
+            case "Java":
+                files = new File("txt/java/sourceFile");
+                break;
+            case "C":
+                files = new File("txt/c/sourceFile");
+                break;
+            case "Python":
+                files = new File("txt/python/sourceFile");
+                break;
+            }
+            list = new ArrayList<String>();
+            File[] subFiles = files.listFiles(); // 폴더 내 파일 리스트 불러옴
+            for (int i = 0; i < subFiles.length; i++) {
+                list.add(subFiles[i].getName());
+            }
+            JLabel la1 = new JLabel("연습하고 싶은 소스를 선택하여 주세요");
+            la1.setSize(220, 20);
+            la1.setLocation(10, 10);
+            add(la1);
+            JList<Object> li1 = new JList<>(list.toArray());
+            JScrollPane p = new JScrollPane(li1);
+            p.setSize(200, 200);
+            p.setLocation(10, 30);
+            add(p);
+            JButton inputSou = new JButton("소스추가");
+            inputSou.setSize(90, 30);
+            inputSou.setLocation(230, 30);
+            inputSou.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    showSelectTextFileDialog.this.dispose();
+                    dialog = new showSelectTextFileDialog(language);
+                }
+            }); // 버튼 이벤트 추가
+            inputSou.addActionListener(new AddSource()); // 버튼 이벤트 추가
+            add(inputSou);
 
-        accuracy_bar = new JProgressBar(0, 100); // 정확도 bar 생성 및 설정
-        accuracy_bar.setSize(80, 10);
-        accuracy_bar.setLocation(265, 90);
-        accuracy_bar.setForeground(Color.BLACK);
-        accuracy_bar.setBorderPainted(false);
-        add(accuracy_bar);
+            JButton ok_Btn = new JButton("ok");
+            ok_Btn.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if (!li1.isSelectionEmpty()) {
+                        file_Index = li1.getSelectedIndex();
+                        dialog = null;
+                        showSelectTextFileDialog.this.dispose();
+                    }
+                }
+            }); // 버튼 이벤트 추가
+            ok_Btn.setSize(90, 30);
+            ok_Btn.setLocation(230, 70);
+            add(ok_Btn);
 
-        accuracy_Per = new JLabel(Integer.toString(accuracy) + "%"); // 정확도 Label 생성 및 설정
-        accuracy_Per.setSize(100, 30);
-        accuracy_Per.setLocation(355, 80);
-        add(accuracy_Per);
+            JButton cancel_Btn = new JButton("cancel");
+            cancel_Btn.setSize(90, 30);
+            cancel_Btn.setLocation(230, 110);
+            cancel_Btn.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    showSelectTextFileDialog.this.dispose();
+                }
+            }); // 버튼 이벤트 추가
+            add(cancel_Btn);
 
-        currentType_bar = new JProgressBar(0, 1000); // 현재 타수 bar 생성 및 설정
-        currentType_bar.setSize(80, 10);
-        currentType_bar.setLocation(450, 90);
-        currentType_bar.setForeground(Color.BLACK);
-        currentType_bar.setBorderPainted(false);
-        add(currentType_bar);
-
-        currentType_Label = new JLabel("0"); // 현재 타수 Label 생성 및 설정
-        currentType_Label.setSize(100, 30);
-        currentType_Label.setLocation(550, 80);
-        add(currentType_Label);
-
-        goalType_bar = new JProgressBar(0, 1000); // 목표 타수 bar 생성 및 설정
-        goalType_bar.setSize(80, 10);
-        goalType_bar.setLocation(640, 90);
-        goalType_bar.setForeground(Color.BLACK);
-        goalType_bar.setBorderPainted(false);
-        add(goalType_bar);
-
-        goalType_Label = new JLabel(Integer.toString(mf.getGoalType())); // 목표 타수 Label 생성 및 설정
-        goalType_Label.setSize(100, 30);
-        goalType_Label.setLocation(740, 80);
-        add(goalType_Label);
-        goalType_bar.setValue(mf.getGoalType()); // MainFrame에 있는 getGoalType 함수를 이용하여 값을 불러옴
-
-        highestType_bar = new JProgressBar(0, 1000); // 최고 타수 bar 생성 및 설정
-        highestType_bar.setSize(80, 10);
-        highestType_bar.setLocation(830, 90);
-        highestType_bar.setForeground(Color.BLACK);
-        highestType_bar.setBorderPainted(false);
-        add(highestType_bar);
-
-        highestType_Label = new JLabel("0"); // 최고 타수 Label 생성 및 설정
-        highestType_Label.setSize(100, 30);
-        highestType_Label.setLocation(930, 80);
-        add(highestType_Label);
-
-        questionLabel = new JLabel[7]; // 문제 Label 생성 및 설정
-        for (int i = 0; i < questionLabel.length; i++) {
-            questionLabel[i] = new JLabel();
-            questionLabel[i].setText(text.get(index + i));
-            questionLabel[i].setSize(500, 30);
-            questionLabel[i].setLocation(350, 160 + (i * 50));
-            questionLabel[i].setFont(questionLabel[i].getFont().deriveFont(15.0F));
-            questionLabel[i].setHorizontalAlignment(JLabel.LEFT);
-            if (i != 0)
-                questionLabel[i].setForeground(Color.DARK_GRAY);
-            questionLabel[0].setLocation(350, 160);
-            add(questionLabel[i]);
+            setSize(350, 300);
+            setVisible(true);
         }
+    }
 
-        typeLabel = new JLabel(); // 입력 Label 생성 및 설정
-        typeLabel.setSize(500, 30);
-        typeLabel.setLocation(350, 550);
-        typeLabel.setFont(typeLabel.getFont().deriveFont(15.0F));
-        typeLabel.setHorizontalAlignment(JLabel.LEFT);
-        add(typeLabel);
+    public SourcePracticePanel(MainFrame mf, String language) {
+        this.mf = mf;
+        this.language = language;
+        dialog = new showSelectTextFileDialog(language);
+        if (file_Index > -1) {
+            setLayout(null);
+            File files = new File("txt/java/sourceFile"); // 기본 파일을 java 파일로 설정
+            switch (language) { // 언어별 파일 변경
+            case "Java":
+                files = new File("txt/java/sourceFile");
+                break;
+            case "C":
+                files = new File("txt/c/sourceFile");
+                break;
+            case "Python":
+                files = new File("txt/python/sourceFile");
+                break;
+            }
+            File[] subFiles = files.listFiles(); // 폴더 내 파일 리스트 불러옴
+            File f = subFiles[file_Index]; // 파일 선정
 
-        JButton backBtn = new JButton(new ImageIcon("img/sou_back_btn.png")); // 뒤로가기 버튼 생성 및 설정
-        backBtn.setPressedIcon(new ImageIcon("img/sou_back_pbtn.png"));
-        backBtn.setSize(50, 50);
-        backBtn.setLocation(30, 700);
-        backBtn.setBorderPainted(false);
-        backBtn.setContentAreaFilled(false);
-        backBtn.setFocusPainted(false);
-        backBtn.addActionListener(new BackToMainBtnEvent()); // 버튼 이벤트 추가
-        add(backBtn);
+            SourceEdit(f);
 
-        JButton helpBtn = new JButton(new ImageIcon("img/sou_help_btn.png")); // 도움말 버튼 생성 및 설정
-        helpBtn.setPressedIcon(new ImageIcon("img/sou_help_pbtn.png"));
-        helpBtn.setSize(50, 50);
-        helpBtn.setLocation(1110, 700);
-        helpBtn.setBorderPainted(false);
-        helpBtn.setContentAreaFilled(false);
-        helpBtn.setFocusPainted(false);
-        helpBtn.addActionListener(new helpBtnEvent()); // 버튼 이벤트 추가
-        add(helpBtn);
+            progress_bar = new JProgressBar(0, 100); // 진행률 bar 생성 및 설정
+            progress_bar.setSize(80, 10);
+            progress_bar.setLocation(95, 90);
+            progress_bar.setForeground(Color.BLACK);
+            progress_bar.setBorderPainted(false);
+            add(progress_bar);
 
-        JButton exitBtn = new JButton(new ImageIcon("img/sou_exit_btn.png")); // 종료 버튼 생성 및 설정
-        exitBtn.setPressedIcon(new ImageIcon("img/sou_exit_pbtn.png"));
-        exitBtn.setSize(25, 25);
-        exitBtn.setLocation(1160, 5);
-        exitBtn.setBorderPainted(false);
-        exitBtn.setContentAreaFilled(false);
-        exitBtn.setFocusPainted(false);
-        exitBtn.addActionListener(new ExitPro()); // 버튼 이벤트 추가
-        add(exitBtn);
+            progress_Per = new JLabel(Integer.toString(progress) + "%"); // 진행률 Label 생성 및 설정
+            progress_Per.setSize(100, 30);
+            progress_Per.setLocation(185, 80);
+            add(progress_Per);
 
-        JButton miniBtn = new JButton(new ImageIcon("img/sou_mini_btn.png")); // 최소화 버튼 생성 및 설정
-        miniBtn.setPressedIcon(new ImageIcon("img/sou_mini_pbtn.png"));
-        miniBtn.setSize(25, 25);
-        miniBtn.setLocation(1120, 5);
-        miniBtn.setBorderPainted(false);
-        miniBtn.setContentAreaFilled(false);
-        miniBtn.setFocusPainted(false);
-        miniBtn.addActionListener(new MinimizneWindows()); // 버튼 이벤트 추가
-        add(miniBtn);
+            accuracy_bar = new JProgressBar(0, 100); // 정확도 bar 생성 및 설정
+            accuracy_bar.setSize(80, 10);
+            accuracy_bar.setLocation(265, 90);
+            accuracy_bar.setForeground(Color.BLACK);
+            accuracy_bar.setBorderPainted(false);
+            add(accuracy_bar);
 
-        this.addKeyListener(new TypeEvent()); // 패널 키 이벤트 추가
-        this.addKeyListener(new BackToMainEvent()); // 패널 키 이벤트 추가 (우선순위 더 높음)
-        setFocusable(true); // 포커스 설정 가능하게 설정
-        setFocusTraversalKeysEnabled(false);
-        setSize(1200, 800);
-        setVisible(true);
+            accuracy_Per = new JLabel(Integer.toString(accuracy) + "%"); // 정확도 Label 생성 및 설정
+            accuracy_Per.setSize(100, 30);
+            accuracy_Per.setLocation(355, 80);
+            add(accuracy_Per);
+
+            currentType_bar = new JProgressBar(0, 1000); // 현재 타수 bar 생성 및 설정
+            currentType_bar.setSize(80, 10);
+            currentType_bar.setLocation(450, 90);
+            currentType_bar.setForeground(Color.BLACK);
+            currentType_bar.setBorderPainted(false);
+            add(currentType_bar);
+
+            currentType_Label = new JLabel("0"); // 현재 타수 Label 생성 및 설정
+            currentType_Label.setSize(100, 30);
+            currentType_Label.setLocation(550, 80);
+            add(currentType_Label);
+
+            goalType_bar = new JProgressBar(0, 1000); // 목표 타수 bar 생성 및 설정
+            goalType_bar.setSize(80, 10);
+            goalType_bar.setLocation(640, 90);
+            goalType_bar.setForeground(Color.BLACK);
+            goalType_bar.setBorderPainted(false);
+            add(goalType_bar);
+
+            goalType_Label = new JLabel(Integer.toString(mf.getGoalType())); // 목표 타수 Label 생성 및 설정
+            goalType_Label.setSize(100, 30);
+            goalType_Label.setLocation(740, 80);
+            add(goalType_Label);
+            goalType_bar.setValue(mf.getGoalType()); // MainFrame에 있는 getGoalType 함수를 이용하여 값을 불러옴
+
+            highestType_bar = new JProgressBar(0, 1000); // 최고 타수 bar 생성 및 설정
+            highestType_bar.setSize(80, 10);
+            highestType_bar.setLocation(830, 90);
+            highestType_bar.setForeground(Color.BLACK);
+            highestType_bar.setBorderPainted(false);
+            add(highestType_bar);
+
+            highestType_Label = new JLabel("0"); // 최고 타수 Label 생성 및 설정
+            highestType_Label.setSize(100, 30);
+            highestType_Label.setLocation(930, 80);
+            add(highestType_Label);
+
+            questionLabel = new JLabel[7]; // 문제 Label 생성 및 설정
+            for (int i = 0; i < questionLabel.length; i++) {
+                questionLabel[i] = new JLabel();
+                questionLabel[i].setText(text.get(index + i));
+                questionLabel[i].setSize(500, 30);
+                questionLabel[i].setLocation(350, 160 + (i * 50));
+                questionLabel[i].setFont(questionLabel[i].getFont().deriveFont(15.0F));
+                questionLabel[i].setHorizontalAlignment(JLabel.LEFT);
+                if (i != 0)
+                    questionLabel[i].setForeground(Color.DARK_GRAY);
+                questionLabel[0].setLocation(350, 160);
+                add(questionLabel[i]);
+            }
+
+            typeLabel = new JLabel(); // 입력 Label 생성 및 설정
+            typeLabel.setSize(500, 30);
+            typeLabel.setLocation(350, 550);
+            typeLabel.setFont(typeLabel.getFont().deriveFont(15.0F));
+            typeLabel.setHorizontalAlignment(JLabel.LEFT);
+            add(typeLabel);
+
+            JButton backBtn = new JButton(new ImageIcon("img/sou_back_btn.png")); // 뒤로가기 버튼 생성 및 설정
+            backBtn.setPressedIcon(new ImageIcon("img/sou_back_pbtn.png"));
+            backBtn.setSize(50, 50);
+            backBtn.setLocation(30, 700);
+            backBtn.setBorderPainted(false);
+            backBtn.setContentAreaFilled(false);
+            backBtn.setFocusPainted(false);
+            backBtn.addActionListener(new BackToMainBtnEvent()); // 버튼 이벤트 추가
+            add(backBtn);
+
+            JButton helpBtn = new JButton(new ImageIcon("img/sou_help_btn.png")); // 도움말 버튼 생성 및 설정
+            helpBtn.setPressedIcon(new ImageIcon("img/sou_help_pbtn.png"));
+            helpBtn.setSize(50, 50);
+            helpBtn.setLocation(1110, 700);
+            helpBtn.setBorderPainted(false);
+            helpBtn.setContentAreaFilled(false);
+            helpBtn.setFocusPainted(false);
+            helpBtn.addActionListener(new helpBtnEvent()); // 버튼 이벤트 추가
+            add(helpBtn);
+
+            JButton exitBtn = new JButton(new ImageIcon("img/sou_exit_btn.png")); // 종료 버튼 생성 및 설정
+            exitBtn.setPressedIcon(new ImageIcon("img/sou_exit_pbtn.png"));
+            exitBtn.setSize(25, 25);
+            exitBtn.setLocation(1160, 5);
+            exitBtn.setBorderPainted(false);
+            exitBtn.setContentAreaFilled(false);
+            exitBtn.setFocusPainted(false);
+            exitBtn.addActionListener(new ExitPro()); // 버튼 이벤트 추가
+            add(exitBtn);
+
+            JButton miniBtn = new JButton(new ImageIcon("img/sou_mini_btn.png")); // 최소화 버튼 생성 및 설정
+            miniBtn.setPressedIcon(new ImageIcon("img/sou_mini_pbtn.png"));
+            miniBtn.setSize(25, 25);
+            miniBtn.setLocation(1120, 5);
+            miniBtn.setBorderPainted(false);
+            miniBtn.setContentAreaFilled(false);
+            miniBtn.setFocusPainted(false);
+            miniBtn.addActionListener(new MinimizneWindows()); // 버튼 이벤트 추가
+            add(miniBtn);
+
+            this.addKeyListener(new TypeEvent()); // 패널 키 이벤트 추가
+            this.addKeyListener(new BackToMainEvent()); // 패널 키 이벤트 추가 (우선순위 더 높음)
+            setFocusable(true); // 포커스 설정 가능하게 설정
+            setFocusTraversalKeysEnabled(false);
+            setSize(1200, 800);
+            setVisible(true);
+        } else {
+            mf.change("BackToMain");
+        }
     }
 
     class TypeRunnable implements Runnable {
@@ -251,11 +382,16 @@ public class SourcePracticePanel extends JPanel {
         public void keyTyped(KeyEvent e) {
             try {
                 int key = e.getKeyChar();
-                // System.out.println(key);
 
+                if (tab_Cnt != 0) {
+                    tab_Cnt--;
+                    e.setKeyChar('^'); // 현재 키보드 이벤트를 엔터 눌렀을 때로 변경t
+                }
                 if (key == KeyEvent.VK_TAB) {
-                    typeLabel.setText(typeLabel.getText() + "^^");
-                    tabStatus = true;
+                    tab_Cnt += 1;
+                    e.consume(); // 입력 값을 전달하지 않음
+                    e.setKeyChar('^'); // 현재 키보드 이벤트를 엔터 눌렀을 때로 변경
+                    keyTyped(e); // 이벤트 재실행
                 }
 
                 typeLabel.setText(typeLabel.getText().replace("\t", ""));
@@ -267,7 +403,7 @@ public class SourcePracticePanel extends JPanel {
                                                                                                   // 인덱스의 문제 문자를 가져옴
                         if (typeLabel.getText().charAt(typeLabel.getText().length() - 1) != ch) { // 현재 입력한 마지막 문자와 ch가
                                                                                                   // 다를 경우
-                            inaccuracy_cnt--; // 오타 수 증가z
+                            inaccuracy_cnt--; // 오타 수 증가
                             accuracy = 100 - (int) ((double) inaccuracy_cnt / typeLabel.getText().length() * 100); // 정확도
                                                                                                                    // 재계산
                             accuracy_bar.setValue(accuracy); // 정확도 bar 값 변경
@@ -306,7 +442,7 @@ public class SourcePracticePanel extends JPanel {
                     progress = 100 * index / total; // 진행율 계산
                     progress_Per.setText(Integer.toString(progress) + "%"); // 진행률 Label Text 변경
                     progress_bar.setValue(progress); // 진행률 Label Bar Value 변경
-                    inaccuracy_cnt = 0; // 오타수 초기화
+                    inaccuracy_cnt = 0; // 오타수 초기화a
                     if (progress == 100) { // 모두 끝 마쳤을 경우
                         progress = 0; // 진행률 초기화
                         JOptionPane.showMessageDialog(null, "수고하셨습니다.", "종료", JOptionPane.INFORMATION_MESSAGE); // Dialog
@@ -314,7 +450,10 @@ public class SourcePracticePanel extends JPanel {
                         mf.change("BackToMain"); // MainFrame change 함수를 이용하여 MainPanel을 불러옴
                     } else { // 끝마치지 않은 경우
                         for (int i = 0; i < questionLabel.length; i++) { // 문제 문장들을 한칸씩 떙겨옴
-                            questionLabel[i].setText(text.get(index + i));
+                            if (index + i < total)
+                                questionLabel[i].setText(text.get(index + i));
+                            else
+                                questionLabel[i].setText("");
                             typeLabel.setText("");
                         }
                     }
@@ -343,14 +482,7 @@ public class SourcePracticePanel extends JPanel {
 
                     }
 
-                    if (tabStatus == true) {
-                        typeLabel.setForeground(Color.BLACK); // 맞으면 입력창 글자색 검정으로 변경
-                        currentType_bar.setValue(currentType_bar.getValue()); // 현재 타수 Bar Value 변경
-                        currentType_Label.setText(Integer.toString(currentType_bar.getValue())); // 현재 타수 Label Text 변경
-                        tabStatus = false;
-                    }
-
-                    else if (questionLabel[0].getText().substring(0, typeLabel.getText().length())
+                    if (questionLabel[0].getText().substring(0, typeLabel.getText().length())
                             .equals(typeLabel.getText())) { // 한문자씩 올바르게 입력했는지
                         typeLabel.setForeground(Color.BLACK); // 맞으면 입력창 글자색 검정으로 변경
                         currentType_bar.setValue(currentType_bar.getValue()); // 현재 타수 Bar Value 변경
@@ -367,6 +499,13 @@ public class SourcePracticePanel extends JPanel {
     class BackToMainBtnEvent implements ActionListener { // 뒤로가기 버튼 이벤트
         public void actionPerformed(ActionEvent e) {
             mf.change("BackToMain"); // MainFrame change 함수를 이용하여 MainPanel 불러옴
+        }
+    }
+
+    class AddSource implements ActionListener { // 소스추가 버튼 이벤트
+        public void actionPerformed(ActionEvent e) {
+            AddSave();
+            // SourceEdit(filePath);
         }
     }
 
