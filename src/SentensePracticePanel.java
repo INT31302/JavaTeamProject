@@ -61,7 +61,6 @@ public class SentensePracticePanel extends JPanel {
             String line = "";
             while ((line = bufReader.readLine()) != null) { // 파일을 한줄씩 읽음
                 tmp.add(line); // tmp에 추가
-                total++; // 총 문제 수 증가
             }
             int size = tmp.size();
             for (int i = 0; i < size;) {
@@ -78,6 +77,7 @@ public class SentensePracticePanel extends JPanel {
                     i++; // i 값 증가
                 }
             }
+            total = text.size();
             bufReader.close();
         } catch (FileNotFoundException e) {
         } catch (IOException e) {
@@ -296,7 +296,10 @@ public class SentensePracticePanel extends JPanel {
                     mf.change("BackToMain"); // MainFrame change 함수를 이용하여 MainPanel을 불러옴
                 } else { // 끝마치지 않은 경우
                     for (int i = 0; i < questionLabel.length; i++) { // 문제 문장들을 한칸씩 떙겨옴
-                        questionLabel[i].setText(text.get(index + i));
+                        if (index + i < total)
+                            questionLabel[i].setText(text.get(index + i));
+                        else
+                            questionLabel[i].setText("");
                         typeLabel.setText("");
                     }
                 }
