@@ -233,19 +233,18 @@ public class WordPracticePanel extends JPanel {
     }
 
     public void KeyImageChange(char ch) { // 키 매핑을 위한 함수
+        charImage.setVisible(true); // charImage 숨김
+        spaceImage.setVisible(false); // spaceImage 보이게 설정
+        enterImage.setVisible(false); // enterImage 숨김
+
         if (ch == ' ') { // 입력해야할 문자가 공백일 경우
             spaceImage.setVisible(true); // spaceImage 보이게 설정
             charImage.setVisible(false); // charImage 숨김
-        } else { // 공백이 아닐경우
-            spaceImage.setVisible(false); // spaceImage 숨김
-            charImage.setVisible(true); // charImage 보이게 설정
 
+        } else { // 공백이 아닐경우
             if (questionLabel.getText().length() == typeLabel.getText().length()) { // 문장이 완성되었을 경우
                 enterImage.setVisible(true); // enterImage 보이게 설정
                 charImage.setVisible(false); // charImage 숨김
-            } else { // 문장이 미완성일 경우
-                enterImage.setVisible(false); // enterImage 숨김
-                charImage.setVisible(true); // charImage 보이게 설정
             }
         }
 
