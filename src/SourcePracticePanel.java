@@ -25,23 +25,28 @@ public class SourcePracticePanel extends JPanel {
     private int inaccuracy_cnt = 0; // 오타수
     private int total = 0; // 총 문제 수
     private int index = 0; // 현재 문제 수
-    private char ch;
+    private char ch; // 입력한 값
     private int back; // 백스페이스 입력 수
-    private int n;
-    private int file_Index = -1;
+    private int n; // 현재타수 값
+    private int file_Index = -1; // 선택한 파일 Index
     private ArrayList<String> tmp = new ArrayList<String>(); // 파일에서 문장을 입력받는 ArrayList
     private ArrayList<String> text = new ArrayList<String>(); // 수정된 문장을 입력 받는 ArrayList
     private ArrayList<String> saveTmp = new ArrayList<String>();
     TypeRunnable runnable = new TypeRunnable(); // 현재타수 계산 Runnable
     Thread th = new Thread(runnable); // 스레드에 현재타수 계산 Runnable 추가
     private long beforeTime; // 스레드 시작한 시간 저장 변수
-    private String language;
-    private int tab_Cnt = 0;
+    private String language; // 현재 언어
+    private int tab_Cnt = 0; // tab 입력 cnt
+    private int openBrace_Cnt = 0; // '{' 갯수 계산용 변수
+    private int empty_Cnt = 0;
+    private String empty;
     private ArrayList<String> list;
     private showSelectTextFileDialog dialog = null;
+    private boolean save;
 
-    public void AddSave() {
+    public void AddSave() { // 파일 저장 함수
         String fne = "";
+        save = true;
         switch (language) { // 언어별 파일 변경
         case "Java":
             fne = "java";
@@ -54,9 +59,9 @@ public class SourcePracticePanel extends JPanel {
             break;
         }
         JFileChooser chooser = new JFileChooser(); // 객체 생성
-        chooser.setAcceptAllFileFilterUsed(false);
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("." + fne, fne);
-        chooser.setFileFilter(filter);
+        chooser.setAcceptAllFileFilterUsed(false); // 파일 필터 중 'All Files' 제거
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("." + fne, fne); // 파일 필터 생성
+        chooser.setFileFilter(filter); // chooser에 filter 설정
 
         int open = chooser.showOpenDialog(this); // 열기창 정의
         if (open != JFileChooser.APPROVE_OPTION) {
@@ -67,36 +72,44 @@ public class SourcePracticePanel extends JPanel {
         File openFile = chooser.getSelectedFile(); // 파일을 가져옴
         String saveName = chooser.getSelectedFile().getName(); // 저장할 폴더의 경로
         try {
+            SourceEdit(openFile); // 문장 다듬기 알고리즘 실행
+            File saveFile = new File("txt/" + language + "/sourceFile/" + saveName);
+            FileInputStream fis = new FileInputStream(openFile); // openFile을 이용하여 스트림 연결
+            FileWriter fw = new FileWriter(saveFile); // 현재 언어의 소스 폴더에
+                                                      // 소스 파일 저장
 
-            FileInputStream fis = new FileInputStream(openFile);
-            FileOutputStream fos = new FileOutputStream("txt/" + language + "/sourceFile/" + saveName);
-            int i = 0;
-            byte[] buffer = new byte[1024];
-
-            while ((i = fis.read(buffer, 0, 1024)) != -1) { // 파일 읽은 개수만큼 출력
-                fos.write(buffer, 0, i);
+            for (int i = 0; i < text.size(); i++) {
+                fw.write(text.get(i));
+                fw.write("\r\n", 0, 2);
             }
 
             fis.close();
-            fos.close();
+            fw.close();
 
             JOptionPane.showMessageDialog(this, "저장이 완료되었습니다.", "System", JOptionPane.INFORMATION_MESSAGE);
-            list.add(saveName);
+            list.add(saveName); // 저장한 파일을 리스트에 추가
+            save = false;
         } catch (Exception ex) {
         }
     }
 
-    public void SourceEdit(File f) {
+    public void SourceEdit(File f) { // 문장 다듬기 알고리즘 함수
         try {
+            tmp = new ArrayList<String>();
+            text = new ArrayList<String>();
             FileReader fin = null;
-            fin = new FileReader(f);
+            fin = new FileReader(f); // f 파일을 읽음
             BufferedReader bufReader = new BufferedReader(fin);
             String line = "";
             while ((line = bufReader.readLine()) != null) { // 파일을 한줄씩 읽음
                 tmp.add(line);
             }
+            openBrace_Cnt = 0;
+
             int size = tmp.size();
             for (int i = 0; i < size - 1; i++) {
+                empty_Cnt = 0;
+                empty = "";
                 if (tmp.get(i + 1).trim().length() == 1 && tmp.get(i + 1).contains("{") == true) {// tmp(i+1)에
                                                                                                   // 글자수가
                                                                                                   // 1자이고,{
@@ -105,14 +118,40 @@ public class SourcePracticePanel extends JPanel {
                     tmp.set(i, tmp.get(i).concat("{")); // 현재 문장의 끝에 { 를 포함시킴
                     tmp.set(i + 1, tmp.get(i + 1).replace("{", "")); // tmp(i+1)의 { 를 공백으로 수정
                 }
+                if (i > 0 && tmp.get(i - 1).contains("{")) // 이전 문장에 '{' 가 있을 경우
+                    openBrace_Cnt++; // openBrace_Cnt 값 증가
+                for (int j = 0; j < tmp.get(i).length(); j++) {
+                    if (tmp.get(i).charAt(j) == '\t') { // 들여 쓰기 부분에 '\t'가 있을경우
+                        tmp.set(i, tmp.get(i).replaceAll("\t", "    ")); // 각 공백 4개로 수정
+                        empty_Cnt++;
+                    } else if (tmp.get(i).charAt(j) == ' ') // 공백이 있을 경우
+                        empty_Cnt++; // empty_Cnt 증가
+                    else // 들여쓰기 부분이 끝났을 경우
+                        break; // for문 종료
+                }
+
+                if (tmp.get(i).contains(("}"))) // 현재 문장에 '}' 가 있을 경우
+                    openBrace_Cnt--; // openBrace_Cnt 값 감소
+                if (empty_Cnt > openBrace_Cnt * 4) { // 현재 문장이 들여쓰기가 더 많이 되있을 경우
+                    tmp.set(i, tmp.get(i).substring(empty_Cnt - (openBrace_Cnt * 4))); // 들여쓰기 줄여줌
+                } else if (empty_Cnt < openBrace_Cnt * 4) { // 들여쓰기가 덜 되있을 경우
+                    for (int j = 0; j < openBrace_Cnt * 4 - empty_Cnt; j++) {
+                        empty += " "; // 들여쓰기 추가
+                    }
+                    tmp.set(i, empty + tmp.get(i));
+                }
                 if (tmp.get(i).trim().equals(""))
                     continue; // 빈 문장일 경우 continue
-                tmp.set(i, tmp.get(i).replace("    ", "^^")); // 문장에 tab이 있을경우 "^^" 으로 대체
+                if (!save)
+                    tmp.set(i, tmp.get(i).replace("    ", "^^")); // 문장에 공백이 4개 있을 경우 "^^" 으로 대체
                 text.add(tmp.get(i)); // text에 문장 추가
             }
-            text.add(tmp.get(size - 1));
+            if (!save) // 파일 저장중이 아니라면
+                tmp.set(size - 1, tmp.get(size - 1).replace("    ", "^^")); // 문장에 공백이 4개 있을 경우 "^^" 으로 대체
+            text.add(tmp.get(size - 1)); // 마지막 문장을 text에 추가
+
             bufReader.close();
-            total = text.size();
+            total = text.size(); // 현재 문장 수를 총 문제로 저장
         } catch (FileNotFoundException e) {
         } catch (IOException e) {
             System.out.println("" + e);
@@ -141,24 +180,24 @@ public class SourcePracticePanel extends JPanel {
             list = new ArrayList<String>();
             File[] subFiles = files.listFiles(); // 폴더 내 파일 리스트 불러옴
             for (int i = 0; i < subFiles.length; i++) {
-                list.add(subFiles[i].getName());
+                list.add(subFiles[i].getName()); // list에 파일 리스트 텍스트 저장
             }
             JLabel la1 = new JLabel("연습하고 싶은 소스를 선택하여 주세요");
             la1.setSize(220, 20);
             la1.setLocation(10, 10);
             add(la1);
-            JList<Object> li1 = new JList<>(list.toArray());
-            JScrollPane p = new JScrollPane(li1);
+            JList<Object> li1 = new JList<>(list.toArray()); // list에 저장한 값을 JList에 저장
+            JScrollPane p = new JScrollPane(li1); // li1을 JScrollPane에 추가
             p.setSize(200, 200);
             p.setLocation(10, 30);
             add(p);
-            JButton inputSou = new JButton("소스추가");
+            JButton inputSou = new JButton("소스추가"); // 소스 추가 버튼 생성 및 추가
             inputSou.setSize(90, 30);
             inputSou.setLocation(230, 30);
             inputSou.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    showSelectTextFileDialog.this.dispose();
-                    dialog = new showSelectTextFileDialog(language);
+                    showSelectTextFileDialog.this.dispose(); // 다이얼로그 제거
+                    dialog = new showSelectTextFileDialog(language); // 새로운 다이얼로그 생성
                 }
             }); // 버튼 이벤트 추가
             inputSou.addActionListener(new AddSource()); // 버튼 이벤트 추가
@@ -167,10 +206,10 @@ public class SourcePracticePanel extends JPanel {
             JButton ok_Btn = new JButton("ok");
             ok_Btn.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    if (!li1.isSelectionEmpty()) {
-                        file_Index = li1.getSelectedIndex();
-                        dialog = null;
-                        showSelectTextFileDialog.this.dispose();
+                    if (!li1.isSelectionEmpty()) { // li1에서 선택된 아이템이 있을 경우
+                        file_Index = li1.getSelectedIndex(); // file_Index에 선택된 index 저장
+                        dialog = null; // dialog = null 처리
+                        showSelectTextFileDialog.this.dispose(); // dialog 제거
                     }
                 }
             }); // 버튼 이벤트 추가
@@ -178,16 +217,15 @@ public class SourcePracticePanel extends JPanel {
             ok_Btn.setLocation(230, 70);
             add(ok_Btn);
 
-            JButton cancel_Btn = new JButton("cancel");
+            JButton cancel_Btn = new JButton("cancel"); // 취소 버튼 생성 및 추가
             cancel_Btn.setSize(90, 30);
             cancel_Btn.setLocation(230, 110);
             cancel_Btn.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    showSelectTextFileDialog.this.dispose();
+                    showSelectTextFileDialog.this.dispose(); // dialog 제거
                 }
             }); // 버튼 이벤트 추가
             add(cancel_Btn);
-
             setSize(350, 300);
             setVisible(true);
         }
@@ -196,8 +234,8 @@ public class SourcePracticePanel extends JPanel {
     public SourcePracticePanel(MainFrame mf, String language) {
         this.mf = mf;
         this.language = language;
-        dialog = new showSelectTextFileDialog(language);
-        if (file_Index > -1) {
+        dialog = new showSelectTextFileDialog(language); // dialog 생성
+        if (file_Index > -1) { // 선택된 파일이 있을 경우
             setLayout(null);
             File files = new File("txt/java/sourceFile"); // 기본 파일을 java 파일로 설정
             switch (language) { // 언어별 파일 변경
@@ -214,8 +252,12 @@ public class SourcePracticePanel extends JPanel {
             File[] subFiles = files.listFiles(); // 폴더 내 파일 리스트 불러옴
             File f = subFiles[file_Index]; // 파일 선정
 
-            SourceEdit(f);
+            SourceEdit(f); // 문장 다듬기 알고리즘 실행
 
+            JLabel guide_label = new JLabel("※ Tab키를 누르면 \"^^\"가 입력됩니다.");
+            guide_label.setSize(300, 30);
+            guide_label.setLocation(10, 150);
+            add(guide_label);
             progress_bar = new JProgressBar(0, 100); // 진행률 bar 생성 및 설정
             progress_bar.setSize(80, 10);
             progress_bar.setLocation(95, 90);
@@ -442,7 +484,7 @@ public class SourcePracticePanel extends JPanel {
                     progress = 100 * index / total; // 진행율 계산
                     progress_Per.setText(Integer.toString(progress) + "%"); // 진행률 Label Text 변경
                     progress_bar.setValue(progress); // 진행률 Label Bar Value 변경
-                    inaccuracy_cnt = 0; // 오타수 초기화a
+                    inaccuracy_cnt = 0; // 오타수 초기화
                     if (progress == 100) { // 모두 끝 마쳤을 경우
                         progress = 0; // 진행률 초기화
                         JOptionPane.showMessageDialog(null, "수고하셨습니다.", "종료", JOptionPane.INFORMATION_MESSAGE); // Dialog
@@ -450,10 +492,10 @@ public class SourcePracticePanel extends JPanel {
                         mf.change("BackToMain"); // MainFrame change 함수를 이용하여 MainPanel을 불러옴
                     } else { // 끝마치지 않은 경우
                         for (int i = 0; i < questionLabel.length; i++) { // 문제 문장들을 한칸씩 떙겨옴
-                            if (index + i < total)
-                                questionLabel[i].setText(text.get(index + i));
-                            else
-                                questionLabel[i].setText("");
+                            if (index + i < total) // 문제가 남아 있을 경우
+                                questionLabel[i].setText(text.get(index + i)); // 문제 Label 변경
+                            else // 남은 문제가 없을 경우
+                                questionLabel[i].setText(""); // 문제 Label 공백 처리
                             typeLabel.setText("");
                         }
                     }
