@@ -1,11 +1,11 @@
-<assert.h>	
-<complex.h> 
-<ctype.h>	
+<assert.h>
+<complex.h>
+<ctype.h>
 <errno.h>
 <fenv.h>
 <float.h>
 <inttypes.h>
-<iso646.h> 
+<iso646.h>
 <limits.h>
 <locale.h>
 <math.h>
@@ -23,7 +23,7 @@
 <string.h>
 <tgmath.h>
 <threads.h>
-<time.h>	
+<time.h>
 <uchar.h>
 <wchar.h>
 <wctype.h>
@@ -32,7 +32,7 @@ qsort_s
 bsearch
 bsearch_s
 void* bsearch( const void *key, const void *ptr, size_t count, size_t size, int (*comp)(const void*, const void*) );
-void* bsearch_s( const void *key, const void *ptr, rsize_t count, rsize_t size,  int (*comp)(const void *, const void *, void *), void *context );
+void* bsearch_s( const void *key, const void *ptr, rsize_t count, rsize_t size, int (*comp)(const void *, const void *, void *), void *context );
 abort
 Atomic operations library
 ATOMIC_*_LOCK_FREE
