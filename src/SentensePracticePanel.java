@@ -296,10 +296,10 @@ public class SentensePracticePanel extends JPanel {
                     mf.change("BackToMain"); // MainFrame change 함수를 이용하여 MainPanel을 불러옴
                 } else { // 끝마치지 않은 경우
                     for (int i = 0; i < questionLabel.length; i++) { // 문제 문장들을 한칸씩 떙겨옴
-                        if (index + i < total)
-                            questionLabel[i].setText(text.get(index + i));
-                        else
-                            questionLabel[i].setText("");
+                        if (index + i < total) // 출제할 문제가 남아 있을 경우
+                            questionLabel[i].setText(text.get(index + i)); // 새로운 문제 설정
+                        else // 더이상 없을 경우
+                            questionLabel[i].setText(""); // 다음 문제들 공백처리
                         typeLabel.setText("");
                     }
                 }
