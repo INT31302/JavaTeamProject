@@ -319,7 +319,7 @@ public class GamePanel extends JPanel {
 					} else { // Label이 공백일 경우
 						if (textLabel[j].getX() == 0 && textLabel[j].getY() == 0) { // Label의 위치가 (0,0)일 경우
 							empty++; // 빈 Label 갯수 증가
-							if (empty == max) { // 문제 끝났을 경우
+							if (empty == textLabel.length) { // 문제 끝났을 경우
 								JOptionPane.showMessageDialog(null, "수고하셨습니다.", "종료", JOptionPane.INFORMATION_MESSAGE); // dialog
 								// 띄워줌
 								mf.change("BackToMain"); // MainFrame change 함수 사용하여 MainPanel 불러옴
